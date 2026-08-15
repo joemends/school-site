@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ViviChild CMS Manager</title><meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#4f3f9a;--accent:#f9c21c;--ink:#263238;--muted:#68777d;--bg:#f5f7fa;--line:#dfe5e8;--white:#fff;--danger:#c62828}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito Sans",sans-serif}h1,h2,h3,button{font-family:Poppins,sans-serif}
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line)}.topin{max-width:1280px;margin:auto;padding:15px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:800;font-size:18px}.brand i{display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:50%;margin-right:8px}
+.wrap{max-width:1280px;margin:auto;padding:22px}.tabs{display:flex;gap:4px;overflow:auto;background:#fff;border-bottom:1px solid var(--line);padding:0 max(22px,calc((100vw - 1280px)/2))}.tabs button{border:0;background:transparent;padding:14px 16px;white-space:nowrap;cursor:pointer}.tabs button.active{color:var(--primary);border-bottom:3px solid var(--accent)}
+.view{display:none}.view.active{display:block}.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 18px}.head h1{margin:0;font-size:26px}.head p{margin:5px 0;color:var(--muted)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}.stat b{font-size:30px}.stat small{display:block;color:var(--muted)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:700}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.danger{color:var(--danger)}.btn.small{padding:7px 10px;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.field{margin-bottom:14px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}th{font-size:11px;color:var(--muted);text-transform:uppercase}.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#eef0fb;color:var(--primary);font-size:11px;font-weight:800}.notice{padding:13px;background:#fff8d9;border:1px solid #f3dc79;border-radius:10px;line-height:1.5}.empty{padding:28px;text-align:center;color:var(--muted)}.hint{font-size:12px;color:var(--muted);line-height:1.5}.preview{min-height:110px;border:1px dashed var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}.preview img{max-width:100%;max-height:190px;object-fit:contain}.login{max-width:420px;margin:10vh auto;padding:24px}.login h1{margin-top:0}.toast{position:fixed;right:20px;bottom:20px;padding:13px 16px;background:#1f2937;color:#fff;border-radius:10px;z-index:99;display:none}
+@media(max-width:800px){.grid,.row,.row3{grid-template-columns:1fr}.wrap{padding:15px}.topin{padding:13px 15px}table{display:block;overflow:auto;white-space:nowrap}.head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login panel" style="display:none">
+<h1>ViviChild CMS Manager</h1><p>Full website management. Sign in with the Supabase admin account.</p>
+<div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username"></div>
+<div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
+<button class="btn primary" id="loginBtn" style="width:100%">Sign in</button>
+<p class="hint" style="margin-top:12px">Create the first admin user in Supabase → Authentication → Users, then add that user's UUID to the <code>admins</code> table using the setup SQL.</p>
+</div>
+
+<div id="app" style="display:none">
+<header class="top"><div class="topin"><div class="brand"><i></i><span id="brandName">ViviChild CMS Manager</span></div><div class="actions"><a class="btn small" href="index.html">View Website</a><a class="btn small" href="admin.html">Admin</a><button class="btn small" id="logoutBtn">Sign out</button></div></div></header>
+<nav class="tabs">
+<button class="active" data-view="dashboard">Dashboard</button><button data-view="settings">Site Settings</button><button data-view="pages">Page Content</button><button data-view="articles">Articles</button><button data-view="reviews">Reviews</button><button data-view="media">Images</button><button data-view="enquiries">Enquiries</button><button data-view="help">Setup Guide</button>
+</nav>
+<main class="wrap">
+
+<section id="view-dashboard" class="view active">
+<div class="head"><div><h1>Dashboard</h1><p>Manage the whole school website from one place.</p></div></div>
+<div class="grid">
+<div class="stat"><b id="statArticles">0</b><small>Articles</small></div><div class="stat"><b id="statReviews">0</b><small>Reviews</small></div><div class="stat"><b id="statMedia">0</b><small>Images</small></div><div class="stat"><b id="statEnquiries">0</b><small>Enquiries</small></div>
+</div>
+<div class="panel"><h3>How this version works</h3><p>GitHub hosts the website files. Supabase provides secure authentication, database storage, image storage and enquiries. The public site reads the latest content directly from Supabase, so you no longer download JSON files after every change.</p><div class="notice"><strong>Security:</strong> only the Supabase <em>anon/public</em> key belongs in the website. Never put the <strong>service_role</strong> key in GitHub.</div></div>
+</section>
+
+<section id="view-settings" class="view">
+<div class="head"><div><h1>Site Settings</h1><p>Change school identity, contact details, SEO, colours, theme, typography, layout and logo.</p></div><button class="btn primary" id="saveSettings">Save Settings</button></div>
+<div class="panel">
+<h3>School identity</h3>
+<div class="row"><div class="field"><label>School name</label><input id="schoolName"></div><div class="field"><label>Tagline</label><input id="tagline"></div></div>
+<div class="row"><div class="field"><label>Phone</label><input id="phone"></div><div class="field"><label>Email</label><input id="email"></div></div>
+<div class="field"><label>Address</label><input id="address"></div>
+<div class="row"><div class="field"><label>Website URL</label><input id="siteUrl"></div><div class="field"><label>Logo image URL</label><input id="logoUrl" placeholder="Supabase image URL"><input id="logoFile" type="file" accept="image/*" style="margin-top:8px"></div></div>
+<div class="row"><div class="field"><label>Hero image URL</label><input id="heroImageUrl" placeholder="Supabase image URL"><input id="heroFile" type="file" accept="image/*" style="margin-top:8px"></div><div class="field"><label>Favicon URL</label><input id="faviconUrl"><input id="faviconFile" type="file" accept="image/*" style="margin-top:8px"></div></div>
+</div>
+<div class="panel"><h3>Theme & appearance</h3>
+<div class="row3"><div class="field"><label>Theme preset</label><select id="theme"><option value="forest">Forest</option><option value="ocean">Ocean</option><option value="royal">Royal</option><option value="warm">Warm</option><option value="modern">Modern</option></select></div>
+<div class="field"><label>Layout preset</label><select id="layout"><option value="classic">Classic</option><option value="split">Split Hero</option><option value="editorial">Editorial</option><option value="minimal">Minimal</option></select></div>
+<div class="field"><label>Header style</label><select id="headerStyle"><option value="solid">Solid</option><option value="soft">Soft Shadow</option><option value="transparent">Transparent</option></select></div></div>
+<div class="row3"><div class="field"><label>Primary colour</label><input id="primary" type="color"></div><div class="field"><label>Primary dark</label><input id="primaryDark" type="color"></div><div class="field"><label>Accent colour</label><input id="accent" type="color"></div></div>
+<div class="row3"><div class="field"><label>Body text</label><input id="ink" type="color"></div><div class="field"><label>Muted text</label><input id="muted" type="color"></div><div class="field"><label>Background</label><input id="background" type="color"></div></div>
+<div class="row3"><div class="field"><label>Heading font</label><select id="headingFont"><option>Poppins</option><option>Nunito Sans</option><option>Montserrat</option><option>Inter</option><option>Playfair Display</option></select></div><div class="field"><label>Body font</label><select id="bodyFont"><option>Nunito Sans</option><option>Poppins</option><option>Inter</option><option>Roboto</option><option>Open Sans</option></select></div><div class="field"><label>Corner style</label><select id="radius"><option value="8px">Sharp</option><option value="12px">Compact</option><option value="16px">Rounded</option><option value="24px">Soft</option><option value="32px">Very Rounded</option></select></div></div>
+</div>
+<div class="panel"><h3>Social links</h3><div class="row3"><div class="field"><label>Facebook</label><input id="facebook"></div><div class="field"><label>Instagram</label><input id="instagram"></div><div class="field"><label>TikTok</label><input id="tiktok"></div></div><div class="field"><label>WhatsApp link</label><input id="whatsapp"></div></div>
+<div class="panel"><h3>SEO</h3><div class="field"><label>Default SEO description</label><textarea id="seoDescription" maxlength="160" rows="3"></textarea></div><div class="field"><label>Footer text</label><textarea id="footerText" rows="2"></textarea></div></div>
+</section>
+
+<section id="view-pages" class="view">
+<div class="head"><div><h1>Page Content</h1><p>Edit the most important headings and calls-to-action without touching HTML.</p></div><button class="btn primary" id="savePages">Save Page Content</button></div>
+<div class="panel" id="pageFields"></div>
+</section>
+
+<section id="view-articles" class="view">
+<div class="head"><div><h1>Articles</h1><p>Publish news and events.</p></div><button class="btn primary" id="newArticle">+ New Article</button></div>
+<div class="panel"><table><thead><tr><th>Title</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="articleTable"></tbody></table><div id="articleEmpty" class="empty">No articles.</div></div>
+</section>
+<section id="view-articleEditor" class="view">
+<div class="head"><h1 id="articleEditorTitle">New Article</h1></div><div class="panel">
+<div class="field"><label>Title</label><input id="a_title"></div><div class="row"><div class="field"><label>Category</label><input id="a_category" value="School News"></div><div class="field"><label>Date</label><input id="a_date" type="date"></div></div>
+<div class="field"><label>Excerpt</label><textarea id="a_excerpt" rows="3"></textarea></div><div class="field"><label>Content</label><textarea id="a_content" rows="10"></textarea></div><div class="field"><label>SEO description</label><textarea id="a_metadesc" maxlength="160" rows="2"></textarea></div>
+<div class="row"><div class="field"><label>Image URL</label><input id="a_image"></div><div class="field"><label>Image alt text</label><input id="a_alt"></div></div><div class="field"><label>Status</label><select id="a_status"><option>Draft</option><option>Published</option></select></div>
+<div class="actions"><button class="btn primary" id="saveArticle">Save</button><button class="btn" onclick="show('articles')">Cancel</button></div></div>
+</section>
+
+<section id="view-reviews" class="view">
+<div class="head"><div><h1>Parent Reviews</h1><p>Only publish reviews you have permission to use.</p></div><button class="btn primary" id="newReview">+ New Review</button></div>
+<div class="panel"><table><thead><tr><th>Parent</th><th>Review</th><th>Status</th><th>Actions</th></tr></thead><tbody id="reviewTable"></tbody></table><div id="reviewEmpty" class="empty">No reviews.</div></div>
+</section>
+<section id="view-reviewEditor" class="view"><div class="head"><h1 id="reviewEditorTitle">New Review</h1></div><div class="panel"><div class="row"><div class="field"><label>Parent / guardian</label><input id="r_name"></div><div class="field"><label>Relation / class</label><input id="r_relation"></div></div><div class="field"><label>Review</label><textarea id="r_quote" rows="5"></textarea></div><div class="field"><label>Status</label><select id="r_status"><option>Draft</option><option>Published</option></select></div><div class="actions"><button class="btn primary" id="saveReview">Save</button><button class="btn" onclick="show('reviews')">Cancel</button></div></div></section>
+
+<section id="view-media" class="view">
+<div class="head"><div><h1>Images</h1><p>Upload, replace, edit and delete every Gallery and Student Life image.</p></div><button class="btn primary" id="newMedia">+ Upload Image</button></div>
+<div class="panel"><table><thead><tr><th>Photo</th><th>Title</th><th>Type</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody id="mediaTable"></tbody></table><div id="mediaEmpty" class="empty">No images.</div></div>
+</section>
+<section id="view-mediaEditor" class="view"><div class="head"><h1 id="mediaEditorTitle">Upload Image</h1></div><div class="panel">
+<div class="row"><div class="field"><label>Image file</label><input id="m_file" type="file" accept="image/jpeg,image/png,image/webp"><p class="hint">The image is uploaded to the Supabase Storage bucket <code>site-media</code>.</p></div><div class="field"><label>Preview</label><div id="m_preview" class="preview">No image selected</div></div></div>
+<div class="row3"><div class="field"><label>Type</label><select id="m_type"><option value="gallery">Gallery</option><option value="student-life">Student Life</option></select></div><div class="field"><label>Title</label><input id="m_title"></div><div class="field"><label>Category</label><input id="m_category"></div></div>
+<div class="field"><label>Alt text</label><input id="m_alt"></div><div class="field"><label>Description</label><textarea id="m_description" rows="3"></textarea></div><div class="field"><label>Status</label><select id="m_status"><option>Published</option><option>Draft</option></select></div>
+<div class="actions"><button class="btn primary" id="saveMedia">Save Image</button><button class="btn" onclick="show('media')">Cancel</button></div></div></section>
+
+<section id="view-enquiries" class="view">
+<div class="head"><div><h1>Enquiries & Forms</h1><p>Admissions and contact form submissions are stored securely in Supabase.</p></div><button class="btn" id="refreshEnquiries">Refresh</button></div>
+<div class="panel"><table><thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Programme</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead><tbody id="enquiryTable"></tbody></table><div id="enquiryEmpty" class="empty">No enquiries yet.</div></div>
+</section>
+
+<section id="view-help" class="view">
+<div class="head"><div><h1>Setup Guide</h1><p>Follow this once to connect GitHub and Supabase.</p></div></div>
+<div class="panel"><div id="helpContent"></div></div>
+</section>
+</main></div>
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script>
+const cfg=window.SUPABASE_CONFIG||{}; const valid=cfg.url&&!cfg.url.includes('YOUR_')&&cfg.anonKey&&!cfg.anonKey.includes('YOUR_');
+let sb=null,currentArticle=null,currentReview=null,currentMedia=null,settings={},content={};
+const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2600)}
+function show(name){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));const el=$('view-'+name);if(el)el.classList.add('active');document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.view===name));}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.view));
+function fail(msg){alert(msg);throw new Error(msg)}
+async function isAdmin(){const {data:{user}}=await sb.auth.getUser();if(!user)return false;const {data,error}=await sb.from('admins').select('user_id').eq('user_id',user.id).maybeSingle();return !!data&&!error}
+async function boot(){
+ if(!valid){$('loginScreen').style.display='block';$('loginScreen').innerHTML='<h1>Supabase not configured</h1><p>Open <code>assets/js/supabase-config.js</code> and add your Supabase Project URL and anon/public key, then reload.</p>';return}
+ sb=supabase.createClient(cfg.url,cfg.anonKey);
+ const {data:{session}}=await sb.auth.getSession();
+ if(session && await isAdmin()) openApp(); else $('loginScreen').style.display='block';
+}
+async function openApp(){$('loginScreen').style.display='none';$('app').style.display='block';await loadAll();renderHelp()}
+$('loginBtn').onclick=async()=>{try{const {error}=await sb.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});if(error)throw error;if(!(await isAdmin())){await sb.auth.signOut();throw Error('This account is not in the admins table.')}openApp()}catch(e){alert(e.message)}}
+$('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload()}
+
+const pageDefs={
+ homeHeroTitle:'Home — Hero title',homeHeroText:'Home — Hero paragraph',homeWelcomeTitle:'Home — Welcome heading',homeWhyTitle:'Home — Why choose us heading',
+ homeAcademicsTitle:'Home — Academics heading',homeAdmissionsTitle:'Home — Admissions heading',homeStudentLifeTitle:'Home — Student Life heading',
+ homeGalleryTitle:'Home — Gallery heading',homeNewsTitle:'Home — News heading',homeCtaTitle:'Home — Final CTA heading',
+ aboutWelcomeTitle:'About — Welcome heading',aboutStoryTitle:'About — Story heading',academicsTitle:'Academics — Main heading',
+ admissionsTitle:'Admissions — Main heading',studentLifeTitle:'Student Life — Main heading',galleryTitle:'Gallery — Main heading',
+ newsTitle:'News — Main heading',contactTitle:'Contact — Main heading'
+};
+function renderPageFields(){ $('pageFields').innerHTML=Object.entries(pageDefs).map(([k,label])=>`<div class="field"><label>${esc(label)}</label><input data-page-key="${esc(k)}" value="${esc(content[k]||'')}"></div>`).join('')}
+async function loadSettings(){const {data,error}=await sb.from('site_settings').select('settings').eq('id',1).maybeSingle();if(error)throw error;settings=data?.settings||{};fillSettings()}
+function setv(id,v){if($(id))$(id).value=v??''}
+function fillSettings(){const s=settings,c=s.colors||{},f=s.fonts||{},social=s.social||{};[['schoolName',s.schoolName],['tagline',s.tagline],['phone',s.phone],['email',s.email],['address',s.address],['siteUrl',s.siteUrl],['logoUrl',s.logoUrl],['heroImageUrl',s.heroImageUrl],['faviconUrl',s.faviconUrl],['theme',s.theme||'forest'],['layout',s.layout||'classic'],['headerStyle',s.headerStyle||'solid'],['primary',c.primary||'#4f3f9a'],['primaryDark',c.primaryDark||'#382d70'],['accent',c.accent||'#f9c21c'],['ink',c.ink||'#263238'],['muted',c.muted||'#68777d'],['background',c.background||'#f5f7fa'],['headingFont',f.heading||'Poppins'],['bodyFont',f.body||'Nunito Sans'],['radius',s.radius||'16px'],['facebook',social.facebook],['instagram',social.instagram],['tiktok',social.tiktok],['whatsapp',social.whatsapp],['seoDescription',s.seoDescription],['footerText',s.footerText]].forEach(x=>setv(x[0],x[1]));content=s.content||{};renderPageFields()}
+function collectSettings(){const get=id=>$(id)?.value||'';return {schoolName:get('schoolName'),tagline:get('tagline'),phone:get('phone'),email:get('email'),address:get('address'),siteUrl:get('siteUrl'),logoUrl:get('logoUrl'),heroImageUrl:get('heroImageUrl'),faviconUrl:get('faviconUrl'),theme:get('theme'),layout:get('layout'),headerStyle:get('headerStyle'),radius:get('radius'),colors:{primary:get('primary'),primaryDark:get('primaryDark'),accent:get('accent'),ink:get('ink'),muted:get('muted'),background:get('background'),card:'#ffffff'},fonts:{heading:get('headingFont'),body:get('bodyFont')},social:{facebook:get('facebook'),instagram:get('instagram'),tiktok:get('tiktok'),whatsapp:get('whatsapp')},seoDescription:get('seoDescription'),footerText:get('footerText'),content}}
+$('theme').onchange=()=>{const presets={forest:['#4f3f9a','#382d70','#f9c21c'],ocean:['#0b7285','#075968','#ffb703'],royal:['#4f3f9a','#382d70','#f9c21c'],warm:['#b45309','#78350f','#eab308'],modern:['#1f2937','#111827','#14b8a6']};const p=presets[$('theme').value]||presets.forest;$('primary').value=p[0];$('primaryDark').value=p[1];$('accent').value=p[2]};
+$('saveSettings').onclick=async()=>{try{const next=collectSettings();for(const [input,target] of [['logoFile','logoUrl'],['heroFile','heroImageUrl'],['faviconFile','faviconUrl']]){const file=$(input)?.files?.[0];if(file){const up=await uploadFile(file);next[target]=up.url;setv(target,up.url)}}const {error}=await sb.from('site_settings').upsert({id:1,settings:next,updated_at:new Date().toISOString()});if(error)throw error;settings=next;toast('Site settings saved')}catch(e){alert(e.message)}}
+$('savePages').onclick=async()=>{try{const next={};document.querySelectorAll('[data-page-key]').forEach(x=>next[x.dataset.pageKey]=x.value.trim());const merged={...content,...next};const s=collectSettings();s.content=merged;const {error}=await sb.from('site_settings').upsert({id:1,settings:s,updated_at:new Date().toISOString()});if(error)throw error;settings=s;content=merged;toast('Page content saved')}catch(e){alert(e.message)}}
+
+async function loadArticles(){const {data,error}=await sb.from('articles').select('*').order('date',{ascending:false});if(error)throw error;const rows=data||[];$('statArticles').textContent=rows.length;$('articleEmpty').style.display=rows.length?'none':'block';$('articleTable').innerHTML=rows.map(a=>`<tr><td><strong>${esc(a.title)}</strong><br><span class="hint">${esc(a.category||'')}</span></td><td><span class="pill">${esc(a.status)}</span></td><td>${esc(a.date||'')}</td><td><button class="btn small" onclick="editArticle('${a.id}')">Edit</button> <button class="btn small danger" onclick="deleteArticle('${a.id}')">Delete</button></td></tr>`).join('')}
+function clearArticle(){['a_title','a_category','a_excerpt','a_content','a_metadesc','a_image','a_alt'].forEach(id=>setv(id,''));setv('a_date',new Date().toISOString().slice(0,10));setv('a_status','Draft');currentArticle=null;$('articleEditorTitle').textContent='New Article'}
+$('newArticle').onclick=()=>{clearArticle();show('articleEditor')}
+window.editArticle=async id=>{const {data,error}=await sb.from('articles').select('*').eq('id',id).single();if(error) return alert(error.message);currentArticle=data;setv('a_title',data.title);setv('a_category',data.category);setv('a_date',data.date);setv('a_excerpt',data.excerpt);setv('a_content',Array.isArray(data.content)?data.content.join('\\n\\n'):data.content);setv('a_metadesc',data.metadesc);setv('a_image',data.image_url);setv('a_alt',data.alt);setv('a_status',data.status);$('articleEditorTitle').textContent='Edit Article';show('articleEditor')}
+window.deleteArticle=async id=>{if(!confirm('Delete this article?'))return;const {error}=await sb.from('articles').delete().eq('id',id);if(error)alert(error.message);else{toast('Article deleted');loadArticles()}}
+$('saveArticle').onclick=async()=>{try{const title=$('a_title').value.trim();if(!title)return alert('Add a title.');const obj={title,slug:title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''),category:$('a_category').value,excerpt:$('a_excerpt').value,content:$('a_content').value.split(/\\n\\s*\\n/).map(x=>x.trim()).filter(Boolean),metadesc:$('a_metadesc').value,date:$('a_date').value,status:$('a_status').value,image_url:$('a_image').value,alt:$('a_alt').value,author:'School Admin'};let q=currentArticle?sb.from('articles').update(obj).eq('id',currentArticle.id):sb.from('articles').insert(obj);const {error}=await q;if(error)throw error;toast('Article saved');show('articles');loadArticles()}catch(e){alert(e.message)}}
+
+async function loadReviews(){const {data,error}=await sb.from('reviews').select('*').order('created_at',{ascending:false});if(error)throw error;const rows=data||[];$('statReviews').textContent=rows.length;$('reviewEmpty').style.display=rows.length?'none':'block';$('reviewTable').innerHTML=rows.map(r=>`<tr><td><strong>${esc(r.name)}</strong><br><span class="hint">${esc(r.relation||'')}</span></td><td>${esc((r.quote||'').slice(0,90))}${(r.quote||'').length>90?'…':''}</td><td><span class="pill">${esc(r.status)}</span></td><td><button class="btn small" onclick="editReview('${r.id}')">Edit</button> <button class="btn small danger" onclick="deleteReview('${r.id}')">Delete</button></td></tr>`).join('')}
+function clearReview(){['r_name','r_relation','r_quote'].forEach(id=>setv(id,''));setv('r_status','Draft');currentReview=null;$('reviewEditorTitle').textContent='New Review'}
+$('newReview').onclick=()=>{clearReview();show('reviewEditor')}
+window.editReview=async id=>{const {data,error}=await sb.from('reviews').select('*').eq('id',id).single();if(error)return alert(error.message);currentReview=data;setv('r_name',data.name);setv('r_relation',data.relation);setv('r_quote',data.quote);setv('r_status',data.status);$('reviewEditorTitle').textContent='Edit Review';show('reviewEditor')}
+window.deleteReview=async id=>{if(!confirm('Delete this review?'))return;const {error}=await sb.from('reviews').delete().eq('id',id);if(error)alert(error.message);else{toast('Review deleted');loadReviews()}}
+$('saveReview').onclick=async()=>{try{const obj={name:$('r_name').value.trim()||'Parent',relation:$('r_relation').value.trim(),quote:$('r_quote').value.trim(),status:$('r_status').value};if(!obj.quote)return alert('Add the review text.');const q=currentReview?sb.from('reviews').update(obj).eq('id',currentReview.id):sb.from('reviews').insert(obj);const {error}=await q;if(error)throw error;toast('Review saved');show('reviews');loadReviews()}catch(e){alert(e.message)}}
+
+let mediaCache=[];
+async function loadMedia(){const {data,error}=await sb.from('media').select('*').order('created_at',{ascending:false});if(error)throw error;mediaCache=data||[];$('statMedia').textContent=mediaCache.length;$('mediaEmpty').style.display=mediaCache.length?'none':'block';$('mediaTable').innerHTML=mediaCache.map(m=>`<tr><td><img src="${esc(m.url)}" alt="" style="width:72px;height:52px;object-fit:cover;border-radius:8px"></td><td><strong>${esc(m.title)}</strong></td><td>${esc(m.type)}</td><td>${esc(m.category||'')}</td><td><span class="pill">${esc(m.status)}</span></td><td><button class="btn small" onclick="editMedia('${m.id}')">Edit</button> <button class="btn small danger" onclick="deleteMedia('${m.id}')">Delete</button></td></tr>`).join('')}
+function clearMedia(){['m_title','m_category','m_alt','m_description'].forEach(id=>setv(id,''));$('m_file').value='';$('m_preview').innerHTML='No image selected';setv('m_type','gallery');setv('m_status','Published');currentMedia=null;$('mediaEditorTitle').textContent='Upload Image'}
+$('newMedia').onclick=()=>{clearMedia();show('mediaEditor')}
+$('m_file').onchange=()=>{const f=$('m_file').files[0];if(f){const r=new FileReader();r.onload=e=>$('m_preview').innerHTML='<img src="'+e.target.result+'" alt="Preview">';r.readAsDataURL(f)}}
+window.editMedia=async id=>{const m=mediaCache.find(x=>x.id===id);if(!m)return;currentMedia=m;setv('m_title',m.title);setv('m_category',m.category);setv('m_alt',m.alt);setv('m_description',m.description);setv('m_type',m.type);setv('m_status',m.status);$('m_preview').innerHTML='<img src="'+esc(m.url)+'" alt="">';$('mediaEditorTitle').textContent='Edit Image';show('mediaEditor')}
+window.deleteMedia=async id=>{if(!confirm('Delete this image?'))return;const m=mediaCache.find(x=>x.id===id);try{if(m?.storage_path)await sb.storage.from('site-media').remove([m.storage_path]);const {error}=await sb.from('media').delete().eq('id',id);if(error)throw error;toast('Image deleted');loadMedia()}catch(e){alert(e.message)}}
+async function uploadFile(file){const ext=(file.name.split('.').pop()||'jpg').toLowerCase();const path='media/'+crypto.randomUUID()+'.'+ext;const {error}=await sb.storage.from('site-media').upload(path,file,{upsert:false,cacheControl:'3600'});if(error)throw error;const {data}=sb.storage.from('site-media').getPublicUrl(path);return {path,url:data.publicUrl}}
+$('saveMedia').onclick=async()=>{try{const file=$('m_file').files[0];let url=currentMedia?.url||'',storage_path=currentMedia?.storage_path||'';if(file){const up=await uploadFile(file);url=up.url;storage_path=up.path;if(currentMedia?.storage_path)await sb.storage.from('site-media').remove([currentMedia.storage_path])}if(!url)return alert('Choose an image.');const obj={type:$('m_type').value,title:$('m_title').value.trim()||'School Photo',category:$('m_category').value.trim()||'School Life',alt:$('m_alt').value.trim()||$('m_title').value.trim()||'School photo',description:$('m_description').value.trim(),status:$('m_status').value,url,storage_path};const q=currentMedia?sb.from('media').update(obj).eq('id',currentMedia.id):sb.from('media').insert(obj);const {error}=await q;if(error)throw error;toast('Image saved');show('media');loadMedia()}catch(e){alert(e.message)}}
+
+async function loadEnquiries(){const {data,error}=await sb.from('enquiries').select('*').order('created_at',{ascending:false});if(error)throw error;const rows=data||[];$('statEnquiries').textContent=rows.length;$('enquiryEmpty').style.display=rows.length?'none':'block';$('enquiryTable').innerHTML=rows.map(e=>`<tr><td>${new Date(e.created_at).toLocaleString()}</td><td><strong>${esc(e.name)}</strong></td><td>${esc(e.phone)}<br>${esc(e.email)}</td><td>${esc(e.programme||'')}</td><td style="white-space:normal;min-width:220px">${esc(e.message||'')}</td><td><span class="pill">${esc(e.status||'New')}</span></td><td><button class="btn small" onclick="markEnquiry('${e.id}','Read')">Read</button> <button class="btn small danger" onclick="deleteEnquiry('${e.id}')">Delete</button></td></tr>`).join('')}
+window.markEnquiry=async(id,status)=>{const {error}=await sb.from('enquiries').update({status}).eq('id',id);if(error)alert(error.message);else loadEnquiries()}
+window.deleteEnquiry=async id=>{if(!confirm('Delete this enquiry?'))return;const {error}=await sb.from('enquiries').delete().eq('id',id);if(error)alert(error.message);else{toast('Enquiry deleted');loadEnquiries()}}
+$('refreshEnquiries').onclick=loadEnquiries;
+
+async function loadAll(){try{await loadSettings();await loadArticles();await loadReviews();await loadMedia();await loadEnquiries();}catch(e){console.error(e);alert('CMS data could not be loaded: '+e.message)}}
+function renderHelp(){
+$('helpContent').innerHTML=`<h3>1. Create Supabase</h3><p>Create a Supabase project and run the supplied <code>supabase_schema.sql</code> in SQL Editor.</p><h3>2. Create the admin account</h3><p>Supabase → Authentication → Users → Add user. Then copy that user's UUID into the <code>admins</code> table using the SQL guide.</p><h3>3. Connect this website</h3><p>Open <code>assets/js/supabase-config.js</code>. Paste the Project URL and anon/public key. Do not use service_role.</p><h3>4. Upload to GitHub</h3><p>Commit the complete website folder to your GitHub repository. Enable GitHub Pages from Settings → Pages → Deploy from branch → main → /(root).</p><h3>5. Open the CMS</h3><p>Visit <code>/admin.html</code>, sign in, and use Site Settings, Page Content, Articles, Reviews, Images and Enquiries.</p><h3>6. Images</h3><p>Images are stored in Supabase Storage, not in GitHub. Replace any image from the CMS and it changes for everyone immediately.</p><h3>7. Forms</h3><p>Admissions and Contact forms write to the Supabase <code>enquiries</code> table. They no longer depend on FormSubmit or Netlify Functions.</p><div class="notice"><strong>Important:</strong> GitHub Pages is static hosting. Supabase is the backend. Keep Row Level Security enabled exactly as supplied by the SQL script.</div>`;
+}
+boot();
+</script>
+</body></html>

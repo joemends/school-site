@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">News Article | ViviChild Academy Gbawe</title>
+<meta name="description" id="pageDesc" content="Read the latest news and announcements from ViviChild Academy, a private school in Gbawe, Greater Accra.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+.article-wrap{max-width:760px; margin:0 auto;}
+.article-meta{display:flex; gap:16px; flex-wrap:wrap; align-items:center; color:var(--ink-soft); font-size:13.5px; margin:14px 0 24px;}
+.article-meta .cat{color:var(--coral); font-family:'Poppins',sans-serif; font-weight:600; text-transform:uppercase; font-size:11.5px; letter-spacing:.05em;}
+.article-hero-ph{position:relative; aspect-ratio:16/8; margin-bottom:28px; border-radius:var(--radius); overflow:hidden; background:linear-gradient(0deg,#EAF6FB,#EAF6FB); background-color:#EAF3F6; display:flex; align-items:flex-end;}
+.article-hero-ph img{width:100%; height:100%; object-fit:cover; display:block;}
+.article-body p{font-size:16.5px; color:#3c474b; margin-bottom:1.2em;}
+.share-row{display:flex; gap:10px; margin:32px 0; padding:20px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+.share-row a{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; border:1px solid var(--line); font-family:'Poppins',sans-serif;}
+.article-nav a{font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; color:var(--leaf-dark);}
+.related-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:16px;}
+@media (max-width:800px){.related-grid{grid-template-columns:1fr;}}
+.article-cta{background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-lg); padding:36px; text-align:center; margin-top:48px;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/site-cms.js"></script>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo" data-site-logo>
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3c3 3 3 7 0 10-3-3-3-7 0-10Z" fill="#fff"/><path d="M12 13v8" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M12 17c-2.2 0-4-1.3-4.5-3 2 0 3.4.8 4.5 2 1.1-1.2 2.5-2 4.5-2-.5 1.7-2.3 3-4.5 3Z" fill="#fff"/></svg>
+      </span>
+      Vivi<span>Child</span> Academy
+    </a>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="academics.html">Academics</a>
+      <a href="admissions.html">Admissions</a>
+      <a href="student-life.html">Student Life</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="news.html">News &amp; Events</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-ctas">
+      <a href="tel:+233594752241" class="btn btn-secondary">Call Us</a>
+      <a href="admissions.html" class="btn btn-primary">Apply Now</a>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="academics.html">Academics</a>
+    <a href="admissions.html">Admissions</a>
+    <a href="student-life.html">Student Life</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="news.html">News &amp; Events</a>
+    <a href="contact.html">Contact</a>
+    <div class="mobile-ctas">
+      <a href="tel:+233594752241" class="btn btn-secondary" style="flex:1">Call Us</a>
+      <a href="admissions.html" class="btn btn-primary" style="flex:1">Apply Now</a>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <nav aria-label="Breadcrumb" style="padding:18px 0 0;">
+    <div class="container" style="font-size:13px; color:var(--ink-soft);">
+      <a href="index.html" style="color:var(--leaf-dark); font-weight:600;">Home</a> /
+      <a href="news.html" style="color:var(--leaf-dark); font-weight:600;">News &amp; Events</a> /
+      <span id="breadcrumbTitle">Article</span>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container article-wrap">
+      <span class="eyebrow" id="articleCategory">School News</span>
+      <h1 id="articleTitle" style="font-size:clamp(26px,3.6vw,38px);">Loading article…</h1>
+      <div class="article-meta">
+        <span id="articleDate"></span>
+        <span>·</span>
+        <span id="articleAuthor"></span>
+      </div>
+      <div class="ph article-hero-ph" id="articleHero"><span class="ph-tag">Featured image</span></div>
+      <div class="article-body" id="articleContent"></div>
+
+      <div class="share-row">
+        <a href="#" data-share="facebook">Share on Facebook</a>
+        <a href="#" data-share="whatsapp">Share on WhatsApp</a>
+        <a href="#" data-share="copy">Copy Link</a>
+      </div>
+
+      <div class="article-nav">
+        <a href="news.html">← Back to News &amp; Events</a>
+      </div>
+
+      <div id="relatedWrap">
+        <h3 style="font-size:18px;">Related Articles</h3>
+        <div class="related-grid" id="relatedGrid"></div>
+      </div>
+
+      <div class="article-cta">
+        <h3>Interested in ViviChild Academy?</h3>
+        <p style="color:var(--ink-soft);">Take the next step toward a caring, quality education for your child.</p>
+        <div class="btn-row" style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <a href="admissions.html" class="btn btn-primary">Apply Now</a>
+          <a href="contact.html" class="btn btn-secondary">Contact Admissions</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="mobile-call-bar">
+  <div class="row">
+    <a href="https://wa.me/233594752241" target="_blank" rel="noopener" class="btn btn-primary">WhatsApp</a>
+    <a href="tel:+233594752241" class="btn btn-secondary">Call</a>
+  </div>
+</div>
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">
+          <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 3 3 7 0 10-3-3-3-7 0-10Z" fill="#fff"/></svg></span>
+          ViviChild Academy
+        </div>
+        <p style="max-width:260px; font-size:14.5px;">Nurturing young minds and building bright futures through quality, caring and child-centred education.</p>
+        <div class="social-row">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><path d="M15 8h2V5h-2a4 4 0 0 0-4 4v2H9v3h2v7h3v-7h2.2l.8-3H14V9c0-.6.4-1 1-1Z"/></svg></a>
+          <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><path d="M14 4v10.5a3 3 0 1 1-2.4-2.9"/><path d="M14 4c0 2.2 1.8 4 4 4"/></svg></a>
+          <a href="https://wa.me/233594752241" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Explore</h5>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="academics.html">Academics</a></li>
+          <li><a href="admissions.html">Admissions</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="news.html">News</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul>
+          <li>Gbawe, Greater Accra, Ghana</li>
+          <li>+233 59 475 2241</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ViviChild Academy. All Rights Reserved.</span>
+      <span>Gbawe, Weija-Gbawe Municipal, Greater Accra</span>
+    </div>
+  </div>
+</footer>
+<script src="scripts.js"></script>
+
+<script>
+// Sample fallback articles (used until real ones are published from the admin dashboard)
+const SAMPLE_ARTICLES = [
+  {
+    slug: '2026-2027-admissions-now-open',
+    title: "2026/2027 Admissions Now Open",
+    category: 'Admissions',
+    date: '2026-08-15',
+    author: 'School Admin',
+    alt: 'Featured image — admissions announcement',
+    excerpt: "Applications for the new academic year are now open. Here's everything parents need to know before applying.",
+    content: [
+      "ViviChild Academy is now accepting applications for the 2026/2027 academic year across Early Childhood Education, Nursery, Kindergarten and Basic Education.",
+      "Parents are encouraged to begin the admissions process early — start with an enquiry, schedule a visit, and our admissions team will guide you through the remaining steps.",
+      "Spaces are limited, and enquiries are handled on a first-come basis. Reach out by phone, WhatsApp or the enquiry form to secure your child's place."
+    ]
+  },
+  {
+    slug: 'annual-graduation-ceremony-highlights-2026',
+    title: "Annual Graduation Ceremony Highlights",
+    category: 'Graduation',
+    date: '2026-07-10',
+    author: 'School Admin',
+    alt: 'Featured image — graduation ceremony',
+    excerpt: "A look back at this year's graduation ceremony and our proudest moments with the class of 2026.",
+    content: [
+      "This year's graduation ceremony brought together learners, teachers and families to celebrate a year of growth, learning and achievement.",
+      "Graduating pupils were recognised for their academic progress, character development and contribution to school life, before moving on to the next stage of their education.",
+      "We are proud of every child who crossed the stage this year, and grateful to the parents and teachers who supported them along the way."
+    ]
+  },
+  {
+    slug: 'preparing-your-child-for-kindergarten',
+    title: "Preparing Your Child for Kindergarten",
+    category: 'Parent Information',
+    date: '2026-06-05',
+    author: 'School Admin',
+    alt: 'Featured image — kindergarten preparation',
+    excerpt: "Practical tips for parents on helping children transition smoothly into kindergarten.",
+    content: [
+      "Starting kindergarten is a big step for young children, and a little preparation at home can make the transition much smoother.",
+      "Simple routines — a consistent bedtime, practising getting dressed independently, and talking positively about school — help children feel confident and ready.",
+      "Our teachers are always happy to talk through any concerns parents have before their child's first day. Reach out to our admissions team any time."
+    ]
+  }
+];
+
+async function loadStaticArticles() {
+  try {
+    const response = await fetch('content/articles.json');
+    if (!response.ok) throw new Error('Failed to load content/articles.json');
+    const data = await response.json();
+    return Array.isArray(data) ? data.filter(a => a.status === 'Published') : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+async function loadLocalArticles() {
+  try {
+    const data = JSON.parse(localStorage.getItem('vivichild_cms_articles_v2') || 'null');
+    return Array.isArray(data) ? data.filter(a => a.status === 'Published') : [];
+  } catch (e) { return []; }
+}
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(d) { if (!d) return ''; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }); }
+
+function normalizeAssetPath(src) {
+  if (!src) return '';
+  const value = String(src);
+  if (/^(https?:|data:|blob:)/i.test(value)) return value;
+  return value.replace(/^\/+/, '');
+}
+
+function renderCardImage(article) {
+  if (article.image) {
+    return `<div class="ph"><img src="${esc(normalizeAssetPath(article.image))}" alt="${esc(article.alt || 'Featured image')}"></div>`;
+  }
+  return `<div class="ph"><span class="ph-tag">${esc(article.alt || 'Featured image')}</span></div>`;
+}
+
+async function loadArticle() {
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('slug');
+  let article = null;
+
+  let articles = await loadStaticArticles();
+
+  const localArticles = await loadLocalArticles();
+  if (localArticles.length) {
+    const map = new Map(articles.map(a => [a.slug, a]));
+    localArticles.forEach(a => map.set(a.slug, a));
+    articles = Array.from(map.values());
+  }
+
+  if (slug && articles.length) {
+    article = articles.find(a => a.slug === slug);
+  }
+
+  if (!article) {
+    article = SAMPLE_ARTICLES.find(a => a.slug === slug) || articles[0] || SAMPLE_ARTICLES[0];
+  }
+
+  document.title = (article.seotitle || article.title) + ' | ViviChild Academy';
+  document.getElementById('pageTitle').textContent = document.title;
+  document.getElementById('pageDesc').setAttribute('content', article.metadesc || article.excerpt || '');
+  document.getElementById('breadcrumbTitle').textContent = article.title;
+  document.getElementById('articleCategory').textContent = article.category || 'School News';
+  document.getElementById('articleTitle').textContent = article.title;
+  document.getElementById('articleDate').textContent = fmtDate(article.date);
+  document.getElementById('articleAuthor').textContent = article.author ? ('By ' + article.author) : '';
+
+  const articleHero = document.getElementById('articleHero');
+  const heroAlt = esc(article.alt || 'Featured image');
+  if (article.image) {
+    articleHero.innerHTML = `<img src="${esc(normalizeAssetPath(article.image))}" alt="${heroAlt}">`;
+  } else {
+    articleHero.innerHTML = `<span class="ph-tag" id="articleAlt">${heroAlt}</span>`;
+  }
+
+  const contentEl = document.getElementById('articleContent');
+  const paragraphs = Array.isArray(article.content) ? article.content : String(article.content || '').split(/\n+/).filter(Boolean);
+  contentEl.innerHTML = paragraphs.length ? paragraphs.map(p => `<p>${esc(p)}</p>`).join('') : `<p>${esc(article.excerpt || '')}</p>`;
+
+  const storedRelated = (articles || []).filter(a => a.slug !== article.slug);
+  const related = storedRelated.length ? storedRelated.slice(0, 3) : SAMPLE_ARTICLES.filter(a => a.slug !== article.slug).slice(0, 3);
+  const relatedGrid = document.getElementById('relatedGrid');
+  if (related.length) {
+    relatedGrid.innerHTML = related.map(a => `
+      <a href="news-article.html?slug=${encodeURIComponent(a.slug)}" style="text-decoration:none; color:inherit;">
+        <div class="news-card" style="height:100%;">
+          ${renderCardImage(a)}
+          <div class="news-body"><span class="news-cat">${esc(a.category)}</span><h3 style="font-size:15.5px;">${esc(a.title)}</h3></div>
+        </div>
+      </a>`).join('');
+  } else {
+    document.getElementById('relatedWrap').style.display = 'none';
+  }
+}
+if (!window.VC?.supabase) loadArticle();
+</script>
+</body>
+</html>
+

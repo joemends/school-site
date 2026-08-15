@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ViviChild Admin</title><meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#4f3f9a;--accent:#f9c21c;--ink:#263238;--muted:#68777d;--bg:#f5f7fa;--line:#dfe5e8;--white:#fff;--danger:#c62828}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito Sans",sans-serif}h1,h2,h3,button{font-family:Poppins,sans-serif}
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line)}.topin{max-width:1280px;margin:auto;padding:15px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:800;font-size:18px}.brand i{display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:50%;margin-right:8px}
+.wrap{max-width:1280px;margin:auto;padding:22px}.nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:18px}.nav button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700}.nav button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.view{display:none}.view.active{display:block}.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 18px}.head h1{margin:0;font-size:26px}.head p{margin:5px 0;color:var(--muted)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}.stat b{font-size:30px}.stat small{display:block;color:var(--muted)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:700;text-decoration:none;color:inherit}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.danger{color:var(--danger)}.btn.small{padding:7px 10px;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.field{margin-bottom:14px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}th{font-size:11px;color:var(--muted);text-transform:uppercase}.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#eef0fb;color:var(--primary);font-size:11px;font-weight:800}.empty{padding:28px;text-align:center;color:var(--muted)}.notice{padding:13px;background:#fff8d9;border:1px solid #f3dc79;border-radius:10px;line-height:1.5}.hint{font-size:12px;color:var(--muted);line-height:1.5}
+.preview-frame{border:1px solid var(--line);border-radius:14px;background:#f8fafc;padding:22px}.form-card{max-width:720px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.05)}.form-card h2{margin-top:0}.readonly-note{font-size:12px;color:var(--muted);margin-top:10px}
+.login{max-width:420px;margin:10vh auto;padding:24px}.login h1{margin-top:0}.toast{position:fixed;right:20px;bottom:20px;padding:13px 16px;background:#1f2937;color:#fff;border-radius:10px;z-index:99;display:none}
+@media(max-width:800px){.grid,.row{grid-template-columns:1fr}.wrap{padding:15px}.topin{padding:13px 15px}table{display:block;overflow:auto;white-space:nowrap}.head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login panel" style="display:none">
+<h1>ViviChild Admin</h1>
+<p>Restricted admin area for enquiries and form previews.</p>
+<div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username"></div>
+<div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
+<button class="btn primary" id="loginBtn" style="width:100%">Sign in</button>
+<p class="hint">Only users listed in the Supabase <code>admins</code> table can access this page.</p>
+</div>
+
+<div id="app" style="display:none">
+<header class="top"><div class="topin"><div class="brand"><i></i><span id="brandName">ViviChild Admin</span></div><div class="actions"><a class="btn small" href="index.html">View Website</a><a class="btn small" href="cms.html">Open CMS</a><button class="btn small" id="logoutBtn">Sign out</button></div></div></header>
+<main class="wrap">
+<nav class="nav"><button class="active" data-view="dashboard">Dashboard</button><button data-view="enquiries">Enquiries</button><button data-view="forms">Form Preview</button></nav>
+
+<section id="view-dashboard" class="view active">
+<div class="head"><div><h1>Admin Dashboard</h1><p>Monitor enquiries and verify the live website forms.</p></div><button class="btn" id="refreshAll">Refresh</button></div>
+<div class="grid">
+<div class="stat"><b id="statEnquiries">0</b><small>Total Enquiries</small></div><div class="stat"><b id="statNew">0</b><small>New</small></div><div class="stat"><b id="statRead">0</b><small>Read</small></div><div class="stat"><b id="statReplied">0</b><small>Replied</small></div>
+</div>
+<div class="panel"><h3>Admin / CMS separation</h3><p><strong>Admin</strong> is intentionally limited to enquiries and form previews. <strong>CMS</strong> remains the master control centre for the school's identity, colours, theme, layout, images, pages, articles, reviews and other website settings.</p><div class="notice"><strong>Need to change the website?</strong> Open the CMS.</div></div>
+</section>
+
+<section id="view-enquiries" class="view">
+<div class="head"><div><h1>Enquiries</h1><p>Admissions and website enquiry submissions stored securely in Supabase.</p></div><div class="actions"><button class="btn" id="refreshEnquiries">Refresh</button><button class="btn" id="markAllRead">Mark all read</button></div></div>
+<div class="panel"><table><thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Child / Programme</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead><tbody id="enquiryTable"></tbody></table><div id="enquiryEmpty" class="empty">No enquiries yet.</div></div>
+</section>
+
+<section id="view-forms" class="view">
+<div class="head"><div><h1>Form Preview</h1><p>Preview the enquiry form and open the live forms. Live submissions go to Supabase.</p></div></div>
+<div class="panel"><h3>Admission / General Enquiry Form</h3>
+<div class="preview-frame"><div class="form-card">
+<h2 id="admissionFormTitle">Admission Enquiry</h2><p id="admissionFormIntro">Send an enquiry to the school and our admissions team will get back to you.</p>
+<div class="row"><div class="field"><label>Full name</label><input placeholder="Your full name" disabled></div><div class="field"><label>Phone</label><input placeholder="+233..." disabled></div></div>
+<div class="row"><div class="field"><label>Email</label><input placeholder="you@example.com" disabled></div><div class="field"><label>Child age</label><input placeholder="e.g. 5 years" disabled></div></div>
+<div class="field"><label>Programme</label><select disabled><option>Select programme</option><option>Early Years</option><option>Primary</option><option>Junior High</option></select></div>
+<div class="field"><label>Message</label><textarea rows="4" placeholder="Tell us how we can help..." disabled></textarea></div>
+<button class="btn primary" disabled>Submit Enquiry</button>
+</div></div><p class="readonly-note">Preview only. This screen does not submit data.</p>
+</div>
+<div class="panel"><h3>Live Website Forms</h3><div class="actions"><a class="btn primary" href="admissions.html" target="_blank" rel="noopener">Open Admissions Form</a><a class="btn" href="contact.html" target="_blank" rel="noopener">Open Contact Form</a><a class="btn" href="index.html#enquiryForm" target="_blank" rel="noopener">Open Home Enquiry</a></div></div>
+</section>
+</main>
+</div>
+<div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script>
+(()=> {
+const $=id=>document.getElementById(id),cfg=window.VIVICHILD_SUPABASE||{};let sb;
+const valid=cfg.url&&cfg.anonKey&&!String(cfg.url).includes('YOUR_')&&!String(cfg.anonKey).includes('YOUR_');
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function toast(m){$('toast').textContent=m;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2400);}
+function show(n){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===n));$('view-'+n).classList.add('active');}
+async function isAdmin(){const {data,error}=await sb.from('admins').select('user_id').limit(1);return !error&&!!data?.length;}
+async function loadSettingsPreview(){const {data}=await sb.from('site_settings').select('settings').eq('id',1).maybeSingle();const s=data?.settings||{};$('brandName').textContent=(s.schoolName||'ViviChild')+' Admin';$('admissionFormTitle').textContent=s.content?.admissionFormTitle||'Admission Enquiry';$('admissionFormIntro').textContent=s.content?.admissionFormIntro||'Send an enquiry to the school and our admissions team will get back to you.';}
+async function loadEnquiries(){
+const {data,error}=await sb.from('enquiries').select('*').order('created_at',{ascending:false});if(error)throw error;const rows=data||[],c={New:0,Read:0,Replied:0,Archived:0};rows.forEach(e=>c[e.status||'New']++);
+$('statEnquiries').textContent=rows.length;$('statNew').textContent=c.New;$('statRead').textContent=c.Read;$('statReplied').textContent=c.Replied;$('enquiryEmpty').style.display=rows.length?'none':'block';
+$('enquiryTable').innerHTML=rows.map(e=>`<tr><td>${new Date(e.created_at).toLocaleString()}</td><td><strong>${esc(e.name)}</strong></td><td>${esc(e.phone)}<br>${esc(e.email)}</td><td>${esc(e.child_age||'')}<br>${esc(e.programme||'')}</td><td style="white-space:normal;min-width:240px">${esc(e.message||'')}</td><td><span class="pill">${esc(e.status||'New')}</span></td><td><select onchange="window.setEnquiryStatus('${e.id}',this.value)">${['New','Read','Replied','Archived'].map(s=>`<option ${s===(e.status||'New')?'selected':''}>${s}</option>`).join('')}</select><br><button class="btn small danger" style="margin-top:6px" onclick="window.deleteEnquiry('${e.id}')">Delete</button></td></tr>`).join('');
+}
+window.setEnquiryStatus=async(id,status)=>{const {error}=await sb.from('enquiries').update({status}).eq('id',id);if(error)alert(error.message);else{toast('Status updated');loadEnquiries();}};
+window.deleteEnquiry=async id=>{if(!confirm('Delete this enquiry permanently?'))return;const {error}=await sb.from('enquiries').delete().eq('id',id);if(error)alert(error.message);else{toast('Enquiry deleted');loadEnquiries();}};
+async function openApp(){$('loginScreen').style.display='none';$('app').style.display='block';await Promise.all([loadSettingsPreview(),loadEnquiries()]);}
+async function boot(){
+if(!valid){$('loginScreen').style.display='block';$('loginScreen').innerHTML='<h1>Supabase not configured</h1><p>Open <code>assets/js/supabase-config.js</code> and add the Project URL and anon/public key.</p>';return;}
+sb=window.supabase.createClient(cfg.url,cfg.anonKey);const {data:{session}}=await sb.auth.getSession();if(session&&await isAdmin())openApp();else $('loginScreen').style.display='block';
+}
+$('loginBtn').onclick=async()=>{try{const {error}=await sb.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});if(error)throw error;if(!(await isAdmin())){await sb.auth.signOut();throw Error('This account is not authorised for the admin area.');}openApp();}catch(e){alert(e.message)}};
+$('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload();};$('refreshEnquiries').onclick=loadEnquiries;$('refreshAll').onclick=async()=>{await Promise.all([loadSettingsPreview(),loadEnquiries()]);toast('Admin data refreshed');};$('markAllRead').onclick=async()=>{const {error}=await sb.from('enquiries').update({status:'Read'}).eq('status','New');if(error)alert(error.message);else{toast('New enquiries marked as read');loadEnquiries();}};
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));boot();
+})();
+</script>
+</body>
+</html>
