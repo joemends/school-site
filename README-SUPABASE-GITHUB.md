@@ -618,3 +618,20 @@ Recommended URLs after GitHub Pages deployment:
 - `https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY/admin.html`
 
 The Admin page does not replace the CMS.
+
+## Troubleshooting this version
+
+### Admin says “Supabase not configured”
+The Admin page now uses the same `SUPABASE_CONFIG` object as the CMS. Open `assets/js/supabase-config.js` and replace both placeholders with the Supabase Project URL and anon/public key. Do not use the service_role key.
+
+### “Invalid path specified in request URL”
+Use `admin.html` or `cms.html`, or the new `/admin/` and `/cms/` entry points. If Supabase Auth itself reports a redirect/path error, in Supabase go to Authentication → URL Configuration and add your exact GitHub Pages site URL as the Site URL and add the exact GitHub Pages URL (including `/admin.html` and `/cms.html` where required) to Redirect URLs. Password sign-in on these pages does not require a Netlify function.
+
+### CMS changes not appearing on the website
+The public pages read `site_settings`, `articles`, `reviews` and `media` directly from Supabase. First open `supabase-test.html`. If it says the connection works, confirm the CMS saved the row and that the item is `Published` where applicable. Hard-refresh the browser after the first deployment.
+
+### Articles not opening
+The article page now reads the selected published article from Supabase using `?slug=...`. The old competing local JSON loader has been removed from the Supabase path. Published articles must have a unique slug and status `Published`.
+
+### Enquiry submission fails
+The form now writes directly to `public.enquiries` and displays the actual Supabase error code/message instead of hiding it. Run the supplied `supabase_schema.sql` once in Supabase SQL Editor if the table or policies do not exist. The `enquiries` table allows public INSERT and only admins can SELECT/UPDATE/DELETE.

@@ -26,8 +26,8 @@
 .article-cta{background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-lg); padding:36px; text-align:center; margin-top:48px;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/supabase-config.js"></script>
-<script src="assets/js/site-cms.js"></script>
+<script src="assets/js/supabase-config.js?v=20260815"></script>
+<script src="assets/js/site-cms.js?v=20260815"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -169,146 +169,27 @@
 <script src="scripts.js"></script>
 
 <script>
-// Sample fallback articles (used until real ones are published from the admin dashboard)
-const SAMPLE_ARTICLES = [
-  {
-    slug: '2026-2027-admissions-now-open',
-    title: "2026/2027 Admissions Now Open",
-    category: 'Admissions',
-    date: '2026-08-15',
-    author: 'School Admin',
-    alt: 'Featured image — admissions announcement',
-    excerpt: "Applications for the new academic year are now open. Here's everything parents need to know before applying.",
-    content: [
-      "ViviChild Academy is now accepting applications for the 2026/2027 academic year across Early Childhood Education, Nursery, Kindergarten and Basic Education.",
-      "Parents are encouraged to begin the admissions process early — start with an enquiry, schedule a visit, and our admissions team will guide you through the remaining steps.",
-      "Spaces are limited, and enquiries are handled on a first-come basis. Reach out by phone, WhatsApp or the enquiry form to secure your child's place."
-    ]
-  },
-  {
-    slug: 'annual-graduation-ceremony-highlights-2026',
-    title: "Annual Graduation Ceremony Highlights",
-    category: 'Graduation',
-    date: '2026-07-10',
-    author: 'School Admin',
-    alt: 'Featured image — graduation ceremony',
-    excerpt: "A look back at this year's graduation ceremony and our proudest moments with the class of 2026.",
-    content: [
-      "This year's graduation ceremony brought together learners, teachers and families to celebrate a year of growth, learning and achievement.",
-      "Graduating pupils were recognised for their academic progress, character development and contribution to school life, before moving on to the next stage of their education.",
-      "We are proud of every child who crossed the stage this year, and grateful to the parents and teachers who supported them along the way."
-    ]
-  },
-  {
-    slug: 'preparing-your-child-for-kindergarten',
-    title: "Preparing Your Child for Kindergarten",
-    category: 'Parent Information',
-    date: '2026-06-05',
-    author: 'School Admin',
-    alt: 'Featured image — kindergarten preparation',
-    excerpt: "Practical tips for parents on helping children transition smoothly into kindergarten.",
-    content: [
-      "Starting kindergarten is a big step for young children, and a little preparation at home can make the transition much smoother.",
-      "Simple routines — a consistent bedtime, practising getting dressed independently, and talking positively about school — help children feel confident and ready.",
-      "Our teachers are always happy to talk through any concerns parents have before their child's first day. Reach out to our admissions team any time."
-    ]
-  }
-];
-
-async function loadStaticArticles() {
-  try {
-    const response = await fetch('content/articles.json');
-    if (!response.ok) throw new Error('Failed to load content/articles.json');
-    const data = await response.json();
-    return Array.isArray(data) ? data.filter(a => a.status === 'Published') : [];
-  } catch (err) {
-    return [];
-  }
-}
-
-async function loadLocalArticles() {
-  try {
-    const data = JSON.parse(localStorage.getItem('vivichild_cms_articles_v2') || 'null');
-    return Array.isArray(data) ? data.filter(a => a.status === 'Published') : [];
-  } catch (e) { return []; }
-}
-
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function fmtDate(d) { if (!d) return ''; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }); }
-
-function normalizeAssetPath(src) {
-  if (!src) return '';
-  const value = String(src);
-  if (/^(https?:|data:|blob:)/i.test(value)) return value;
-  return value.replace(/^\/+/, '');
-}
-
-function renderCardImage(article) {
-  if (article.image) {
-    return `<div class="ph"><img src="${esc(normalizeAssetPath(article.image))}" alt="${esc(article.alt || 'Featured image')}"></div>`;
-  }
-  return `<div class="ph"><span class="ph-tag">${esc(article.alt || 'Featured image')}</span></div>`;
-}
-
-async function loadArticle() {
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get('slug');
-  let article = null;
-
-  let articles = await loadStaticArticles();
-
-  const localArticles = await loadLocalArticles();
-  if (localArticles.length) {
-    const map = new Map(articles.map(a => [a.slug, a]));
-    localArticles.forEach(a => map.set(a.slug, a));
-    articles = Array.from(map.values());
-  }
-
-  if (slug && articles.length) {
-    article = articles.find(a => a.slug === slug);
-  }
-
-  if (!article) {
-    article = SAMPLE_ARTICLES.find(a => a.slug === slug) || articles[0] || SAMPLE_ARTICLES[0];
-  }
-
-  document.title = (article.seotitle || article.title) + ' | ViviChild Academy';
-  document.getElementById('pageTitle').textContent = document.title;
-  document.getElementById('pageDesc').setAttribute('content', article.metadesc || article.excerpt || '');
-  document.getElementById('breadcrumbTitle').textContent = article.title;
-  document.getElementById('articleCategory').textContent = article.category || 'School News';
-  document.getElementById('articleTitle').textContent = article.title;
-  document.getElementById('articleDate').textContent = fmtDate(article.date);
-  document.getElementById('articleAuthor').textContent = article.author ? ('By ' + article.author) : '';
-
-  const articleHero = document.getElementById('articleHero');
-  const heroAlt = esc(article.alt || 'Featured image');
-  if (article.image) {
-    articleHero.innerHTML = `<img src="${esc(normalizeAssetPath(article.image))}" alt="${heroAlt}">`;
-  } else {
-    articleHero.innerHTML = `<span class="ph-tag" id="articleAlt">${heroAlt}</span>`;
-  }
-
-  const contentEl = document.getElementById('articleContent');
-  const paragraphs = Array.isArray(article.content) ? article.content : String(article.content || '').split(/\n+/).filter(Boolean);
-  contentEl.innerHTML = paragraphs.length ? paragraphs.map(p => `<p>${esc(p)}</p>`).join('') : `<p>${esc(article.excerpt || '')}</p>`;
-
-  const storedRelated = (articles || []).filter(a => a.slug !== article.slug);
-  const related = storedRelated.length ? storedRelated.slice(0, 3) : SAMPLE_ARTICLES.filter(a => a.slug !== article.slug).slice(0, 3);
-  const relatedGrid = document.getElementById('relatedGrid');
-  if (related.length) {
-    relatedGrid.innerHTML = related.map(a => `
-      <a href="news-article.html?slug=${encodeURIComponent(a.slug)}" style="text-decoration:none; color:inherit;">
-        <div class="news-card" style="height:100%;">
-          ${renderCardImage(a)}
-          <div class="news-body"><span class="news-cat">${esc(a.category)}</span><h3 style="font-size:15.5px;">${esc(a.title)}</h3></div>
-        </div>
-      </a>`).join('');
-  } else {
-    document.getElementById('relatedWrap').style.display = 'none';
-  }
-}
-if (!window.VC?.supabase) loadArticle();
+// Article rendering is handled by assets/js/site-cms.js when Supabase is configured.
+// This small fallback keeps the page usable before Supabase is connected.
+(function(){
+  if(window.VC?.supabase) return;
+  const slug=new URLSearchParams(location.search).get('slug');
+  fetch('content/articles.json').then(r=>r.ok?r.json():[]).then(items=>{
+    const a=(Array.isArray(items)?items:[]).find(x=>x.slug===slug);
+    if(!a)return;
+    const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    document.title=(a.seotitle||a.title)+' | ViviChild Academy';
+    document.getElementById('pageTitle').textContent=document.title;
+    document.getElementById('breadcrumbTitle').textContent=a.title;
+    document.getElementById('articleCategory').textContent=a.category||'School News';
+    document.getElementById('articleTitle').textContent=a.title;
+    document.getElementById('articleDate').textContent=a.date||'';
+    document.getElementById('articleAuthor').textContent=a.author?('By '+a.author):'';
+    document.getElementById('articleHero').innerHTML=a.image?'<img src="'+esc(a.image)+'" alt="'+esc(a.alt||a.title)+'" style="width:100%;height:100%;object-fit:cover;display:block;">':'<span class="ph-tag">'+esc(a.alt||'Featured image')+'</span>';
+    const ps=Array.isArray(a.content)?a.content:String(a.content||'').split(/\n+/).filter(Boolean);
+    document.getElementById('articleContent').innerHTML=ps.map(x=>'<p>'+esc(x)+'</p>').join('');
+  }).catch(()=>{});
+})();
 </script>
 </body>
 </html>

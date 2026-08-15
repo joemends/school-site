@@ -65,15 +65,15 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 8px
 </div>
 <div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/supabase-config.js?v=20260815"></script>
 <script>
 (()=> {
-const $=id=>document.getElementById(id),cfg=window.VIVICHILD_SUPABASE||{};let sb;
+const $=id=>document.getElementById(id),cfg=window.SUPABASE_CONFIG||window.VIVICHILD_SUPABASE||{};let sb;
 const valid=cfg.url&&cfg.anonKey&&!String(cfg.url).includes('YOUR_')&&!String(cfg.anonKey).includes('YOUR_');
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function toast(m){$('toast').textContent=m;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2400);}
 function show(n){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===n));$('view-'+n).classList.add('active');}
-async function isAdmin(){const {data,error}=await sb.from('admins').select('user_id').limit(1);return !error&&!!data?.length;}
+async function isAdmin(){const {data:{user}}=await sb.auth.getUser();if(!user)return false;const {data,error}=await sb.from('admins').select('user_id').eq('user_id',user.id).maybeSingle();return !error&&!!data;}
 async function loadSettingsPreview(){const {data}=await sb.from('site_settings').select('settings').eq('id',1).maybeSingle();const s=data?.settings||{};$('brandName').textContent=(s.schoolName||'ViviChild')+' Admin';$('admissionFormTitle').textContent=s.content?.admissionFormTitle||'Admission Enquiry';$('admissionFormIntro').textContent=s.content?.admissionFormIntro||'Send an enquiry to the school and our admissions team will get back to you.';}
 async function loadEnquiries(){
 const {data,error}=await sb.from('enquiries').select('*').order('created_at',{ascending:false});if(error)throw error;const rows=data||[],c={New:0,Read:0,Replied:0,Archived:0};rows.forEach(e=>c[e.status||'New']++);
@@ -84,7 +84,7 @@ window.setEnquiryStatus=async(id,status)=>{const {error}=await sb.from('enquirie
 window.deleteEnquiry=async id=>{if(!confirm('Delete this enquiry permanently?'))return;const {error}=await sb.from('enquiries').delete().eq('id',id);if(error)alert(error.message);else{toast('Enquiry deleted');loadEnquiries();}};
 async function openApp(){$('loginScreen').style.display='none';$('app').style.display='block';await Promise.all([loadSettingsPreview(),loadEnquiries()]);}
 async function boot(){
-if(!valid){$('loginScreen').style.display='block';$('loginScreen').innerHTML='<h1>Supabase not configured</h1><p>Open <code>assets/js/supabase-config.js</code> and add the Project URL and anon/public key.</p>';return;}
+if(!valid){$('loginScreen').style.display='block';$('loginScreen').innerHTML='<h1>Supabase not configured</h1><p>Open <code>assets/js/supabase-config.js</code>, replace <code>YOUR_SUPABASE_PROJECT_URL</code> and <code>YOUR_SUPABASE_ANON_KEY</code>, commit the file to GitHub, then reload this page.</p>';return;}
 sb=window.supabase.createClient(cfg.url,cfg.anonKey);const {data:{session}}=await sb.auth.getSession();if(session&&await isAdmin())openApp();else $('loginScreen').style.display='block';
 }
 $('loginBtn').onclick=async()=>{try{const {error}=await sb.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});if(error)throw error;if(!(await isAdmin())){await sb.auth.signOut();throw Error('This account is not authorised for the admin area.');}openApp();}catch(e){alert(e.message)}};
