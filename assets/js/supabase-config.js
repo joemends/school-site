@@ -7,8 +7,8 @@
 // NEVER put the service_role key in this file.
 
 (function () {
-  const rawUrl = 'YOUR_SUPABASE_PROJECT_URL';
-  const anonKey = 'YOUR_SUPABASE_ANON_KEY';
+  const rawUrl = 'https://bdhxswgkwelkvvwgqywu.supabase.co';
+  const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkaHhzd2drd2Vsa3Z2d2dxeXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3NDYzNDksImV4cCI6MjEwMjMyMjM0OX0.O54DqOStDNFR1gW4uNqiojFbWJibp3MGVa3ZT1YpnYg';
 
   // Protect the app from the common mistake of pasting a REST/API endpoint
   // instead of the Supabase Project URL.
