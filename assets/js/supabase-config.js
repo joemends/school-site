@@ -1,13 +1,29 @@
 // ViviChild Academy — Supabase browser configuration
-// IMPORTANT: Use the Supabase Project URL and the anon/public key only.
-// NEVER put the service_role key in this file.
+// Use ONLY the Supabase Project URL and anon/public key.
+// The Project URL must look like:
+// https://xxxxxxxxxxxxxxxx.supabase.co
+// Do NOT paste /rest/v1, /auth/v1, /storage/v1, or a trailing API path.
 //
-// After replacing the two placeholders, commit this file to GitHub Pages.
-// The anon/public key is designed for browser use when Row Level Security is enabled.
-window.SUPABASE_CONFIG = window.SUPABASE_CONFIG || {
-  url: 'https://bdhxswgkwelkvvwgqywu.supabase.co',
-  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkaHhzd2drd2Vsa3Z2d2dxeXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3NDYzNDksImV4cCI6MjEwMjMyMjM0OX0.O54DqOStDNFR1gW4uNqiojFbWJibp3MGVa3ZT1YpnYg'
-};
+// NEVER put the service_role key in this file.
 
-// Keep both names for compatibility with the CMS and Admin pages.
-window.VIVICHILD_SUPABASE = window.SUPABASE_CONFIG;
+(function () {
+  const rawUrl = 'YOUR_SUPABASE_PROJECT_URL';
+  const anonKey = 'YOUR_SUPABASE_ANON_KEY';
+
+  // Protect the app from the common mistake of pasting a REST/API endpoint
+  // instead of the Supabase Project URL.
+  function normalizeProjectUrl(value) {
+    let url = String(value || '').trim();
+    url = url.replace(/\/+$/, '');
+    url = url.replace(/\/(rest\/v1|auth\/v1|storage\/v1)(\/.*)?$/i, '');
+    return url;
+  }
+
+  window.SUPABASE_CONFIG = {
+    url: normalizeProjectUrl(rawUrl),
+    anonKey: String(anonKey || '').trim()
+  };
+
+  // Compatibility with older CMS/Admin code.
+  window.VIVICHILD_SUPABASE = window.SUPABASE_CONFIG;
+})();

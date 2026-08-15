@@ -1,6 +1,10 @@
 /* ViviChild Academy — Supabase-powered public site layer */
 (function () {
-  const cfg = window.SUPABASE_CONFIG || window.VIVICHILD_SUPABASE || {};
+  const rawCfg = window.SUPABASE_CONFIG || window.VIVICHILD_SUPABASE || {};
+  const normalizedUrl = String(rawCfg.url || '').trim()
+    .replace(/\\/+$/, '')
+    .replace(/\\/(rest\\/v1|auth\\/v1|storage\\/v1)(\\/.*)?$/i, '');
+  const cfg = { url: normalizedUrl, anonKey: String(rawCfg.anonKey || '').trim() };
   const valid = cfg.url && cfg.anonKey &&
     !String(cfg.url).includes('YOUR_') && !String(cfg.anonKey).includes('YOUR_');
   window.VC = window.VC || {};

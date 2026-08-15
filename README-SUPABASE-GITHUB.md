@@ -635,3 +635,18 @@ The article page now reads the selected published article from Supabase using `?
 
 ### Enquiry submission fails
 The form now writes directly to `public.enquiries` and displays the actual Supabase error code/message instead of hiding it. Run the supplied `supabase_schema.sql` once in Supabase SQL Editor if the table or policies do not exist. The `enquiries` table allows public INSERT and only admins can SELECT/UPDATE/DELETE.
+
+
+## IMPORTANT: Supabase Project URL
+
+In `assets/js/supabase-config.js`, `rawUrl` must be the **Project URL** shown in Supabase Dashboard → Project Settings → API.
+
+Correct:
+`https://YOURPROJECTREF.supabase.co`
+
+Incorrect:
+`https://YOURPROJECTREF.supabase.co/rest/v1`
+`https://YOURPROJECTREF.supabase.co/auth/v1`
+`https://YOURPROJECTREF.supabase.co/storage/v1`
+
+The included `supabase-test.html` gives a specific diagnosis for URL, table, and RLS errors.
