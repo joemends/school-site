@@ -49,17 +49,31 @@
       card: css.card || '#ffffff'
     };
 
+    // Set BOTH the CMS variables and the original site's brand variables.
+    // This is important because parts of the original stylesheet use --brand-*
+    // while newer components use --leaf/--sun/--bg.
     Object.entries({
+      '--brand-purple': values.primary,
+      '--brand-purple-dark': values.primaryDark,
+      '--brand-gold': values.accent,
+      '--brand-gold-dark': values.accent,
+      '--brand-teal': values.primary,
+      '--brand-terracotta': values.accent,
+      '--brand-sand': values.background,
+      '--sky': values.primary,
+      '--sky-dark': values.primaryDark,
       '--leaf': values.primary,
       '--leaf-dark': values.primaryDark,
       '--sun': values.accent,
+      '--coral': values.accent,
       '--ink': values.ink,
       '--ink-soft': values.muted,
       '--bg': values.background,
       '--cream': values.background,
       '--card': values.card,
       '--white': values.card,
-      '--radius': settings.radius || '16px'
+      '--radius': settings.radius || '16px',
+      '--radius-lg': settings.radius || '16px'
     }).forEach(([k,v]) => root.style.setProperty(k, v));
 
     if (settings.fonts?.heading) root.style.setProperty('--font-heading', settings.fonts.heading);
@@ -139,29 +153,31 @@
     const content = settings.content || {};
     const map = {
       homeHeroTitle: '.hero .hero-copy h1',
-      homeHeroText: '.hero .hero-copy p',
-      homeWelcomeTitle: '#home .welcome h2, #home h2',
-      homeWhyTitle: '#home #why h2, #why h2',
+      homeHeroText: '.hero .hero-copy p.lead, .hero .hero-copy p',
+      homeWelcomeTitle: '#home .intro-grid h2, #home h2',
+      homeWhyTitle: '#home .section-tint h2, #why h2',
       homeAcademicsTitle: '#home #academics h2, #academics h2',
-      homeAdmissionsTitle: '#home .admissions h2, .admissions h2',
+      homeAdmissionsTitle: '#home .admissions-side h2, #home .admissions h2, .admissions h2',
       homeStudentLifeTitle: '#home #student-life h2, #student-life h2',
       homeGalleryTitle: '#home #gallery h2, #gallery h2',
       homeNewsTitle: '#home #news h2, #news h2',
       homeCtaTitle: '#home #final-cta h2, #final-cta h2',
-      aboutWelcomeTitle: '#about > .container h2, #about h2',
+      aboutWelcomeTitle: 'main h1, main .intro-grid h2, #about h2',
       aboutStoryTitle: '#our-story h2, #story h2',
-      academicsTitle: '#academics h1, #academics h2',
-      admissionsTitle: '#admissions h1, #admissions > .container h2, #admissions h2',
-      studentLifeTitle: '#student-life h1, #student-life h2',
-      galleryTitle: '#gallery h1, #gallery h2',
-      newsTitle: '#news h1, #news h2',
-      contactTitle: '#contact h1, #contact h2'
+      academicsTitle: 'main h1, #academics h1, #academics h2',
+      admissionsTitle: 'main h1, #admissions h1, #admissions > .container h2',
+      studentLifeTitle: 'main h1, #student-life h1, #student-life h2',
+      galleryTitle: 'main h1, #gallery h1, #gallery h2',
+      newsTitle: 'main h1, #news h1, #news h2',
+      contactTitle: 'main h1, #contact h1, #contact h2'
     };
 
-    Object.entries(map).forEach(([key, selector]) => {
-      if (!content[key]) return;
-      const el = document.querySelector(selector);
-      if (el) el.textContent = content[key];
+    Object.entries(content).forEach(([key, value]) => {
+      if (!value) return;
+      const marked = document.querySelector('[data-cms-key="' + key + '"]');
+      const selector = map[key];
+      const el = marked || (selector ? document.querySelector(selector) : null);
+      if (el) el.textContent = value;
     });
 
     if (settings.heroImageUrl) {
@@ -179,7 +195,9 @@
     const {data,error}=await client.from('site_settings').select('settings').eq('id',1).maybeSingle();
     if(error)throw error;
     window.VC.settings=data?.settings||{};
+    if (!data) console.warn('No site_settings row with id=1 was found. Run supabase_schema.sql or create the row in Supabase.');
     applySettings(window.VC.settings);
+    document.documentElement.dataset.cmsLoaded = 'true';
   }
 
   async function submitEnquiry(form){
