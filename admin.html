@@ -44,7 +44,7 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 8px
 
 <section id="view-enquiries" class="view">
 <div class="head"><div><h1>Enquiries</h1><p>Admissions and website enquiry submissions stored securely in Supabase.</p></div><div class="actions"><button class="btn" id="refreshEnquiries">Refresh</button><button class="btn" id="markAllRead">Mark all read</button></div></div>
-<div class="panel"><table><thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Child / Programme</th><th>Message</th><th>Source</th><th>Status</th><th>Actions</th></tr></thead><tbody id="enquiryTable"></tbody></table><div id="enquiryEmpty" class="empty">No enquiries yet.</div></div>
+<div class="panel"><table><thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Child / Programme</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead><tbody id="enquiryTable"></tbody></table><div id="enquiryEmpty" class="empty">No enquiries yet.</div></div>
 </section>
 
 <section id="view-forms" class="view">
@@ -78,7 +78,7 @@ async function loadSettingsPreview(){const {data}=await sb.from('site_settings')
 async function loadEnquiries(){
 const {data,error}=await sb.from('enquiries').select('*').order('created_at',{ascending:false});if(error)throw error;const rows=data||[],c={New:0,Read:0,Replied:0,Archived:0};rows.forEach(e=>c[e.status||'New']++);
 $('statEnquiries').textContent=rows.length;$('statNew').textContent=c.New;$('statRead').textContent=c.Read;$('statReplied').textContent=c.Replied;$('enquiryEmpty').style.display=rows.length?'none':'block';
-$('enquiryTable').innerHTML=rows.map(e=>`<tr><td>${new Date(e.created_at).toLocaleString()}</td><td><strong>${esc(e.name)}</strong></td><td>${esc(e.phone)}<br>${esc(e.email)}</td><td>${esc(e.child_age||'')}<br>${esc(e.programme||'')}</td><td style="white-space:normal;min-width:240px">${esc(e.message||'')}</td><td>${esc(e.source_page||'Website')}</td><td><span class="pill">${esc(e.status||'New')}</span></td><td><select onchange="window.setEnquiryStatus('${e.id}',this.value)">${['New','Read','Replied','Archived'].map(s=>`<option ${s===(e.status||'New')?'selected':''}>${s}</option>`).join('')}</select><br><button class="btn small danger" style="margin-top:6px" onclick="window.deleteEnquiry('${e.id}')">Delete</button></td></tr>`).join('');
+$('enquiryTable').innerHTML=rows.map(e=>`<tr><td>${new Date(e.created_at).toLocaleString()}</td><td><strong>${esc(e.name)}</strong></td><td>${esc(e.phone)}<br>${esc(e.email)}</td><td>${esc(e.child_age||'')}<br>${esc(e.programme||'')}</td><td style="white-space:normal;min-width:240px">${esc(e.message||'')}</td><td><span class="pill">${esc(e.status||'New')}</span></td><td><select onchange="window.setEnquiryStatus('${e.id}',this.value)">${['New','Read','Replied','Archived'].map(s=>`<option ${s===(e.status||'New')?'selected':''}>${s}</option>`).join('')}</select><br><button class="btn small danger" style="margin-top:6px" onclick="window.deleteEnquiry('${e.id}')">Delete</button></td></tr>`).join('');
 }
 window.setEnquiryStatus=async(id,status)=>{const {error}=await sb.from('enquiries').update({status}).eq('id',id);if(error)alert(error.message);else{toast('Status updated');loadEnquiries();}};
 window.deleteEnquiry=async id=>{if(!confirm('Delete this enquiry permanently?'))return;const {error}=await sb.from('enquiries').delete().eq('id',id);if(error)alert(error.message);else{toast('Enquiry deleted');loadEnquiries();}};

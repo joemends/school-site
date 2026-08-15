@@ -57,6 +57,18 @@
 <script src="assets/js/site-cms.js?v=20260815"></script>
 </head>
 <body>
+
+<div id="siteLoader" class="site-loader" aria-label="Loading website" role="status">
+  <div class="site-loader-inner">
+    <div class="site-loader-logo" data-site-logo>
+      <span class="site-loader-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3c3 3 3 7 0 10-3-3-3-7 0-10Z" fill="currentColor"/><path d="M12 13v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 17c-2.2 0-4-1.3-4.5-3 2 0 3.4.8 4.5 2 1.1-1.2 2.5-2 4.5-2-.5 1.7-2.3 3-4.5 3Z" fill="currentColor"/></svg></span>
+      <span data-site-name>ViviChild Academy</span>
+    </div>
+    <div class="site-loader-spinner" aria-hidden="true"></div>
+    <p>Loading...</p>
+  </div>
+</div>
+
 <a href="#main" class="skip-link">Skip to main content</a>
 
 <header>
@@ -108,8 +120,9 @@
   <div class="hero-grid">
     <div class="hero-copy">
       <span class="eyebrow">Private School &middot; Gbawe, Accra</span>
-      <h1 data-cms-key="homeHeroTitle">Nurturing Young Minds. Building Bright Futures.</h1>
-      <p class="lead" data-cms-key="homeHeroText">A caring and inspiring learning environment where children develop academically, socially, creatively and morally.</p>
+      <h1>Nurturing Young Minds. Building Bright Futures.</h1>
+      <p class="lead">A caring and inspiring learning environment where children develop academically, socially, creatively and morally.</p>
+      <p class="cms-motto" data-site-motto>Nurturing young minds. Building bright futures.</p>
       <div class="hero-cta-row">
         <a href="#admissions" class="btn btn-primary">Apply for Admission</a>
         <a href="about.html" class="btn btn-outline-light">Explore Our School</a>
@@ -143,7 +156,7 @@
     </div>
     <div class="reveal">
       <span class="eyebrow">Our School</span>
-      <h2 class="leaf-mark" data-cms-key="homeWelcomeTitle">Welcome to ViviChild Academy</h2>
+      <h2 class="leaf-mark">Welcome to ViviChild Academy</h2>
       <p style="color:var(--ink-soft); font-size:16.5px;">ViviChild Academy is a private educational institution in Gbawe, Weija-Gbawe Municipal, providing children with quality education built on strong moral foundations. We combine structured academics with developmental activities, ICT exposure and a genuinely supportive environment, so every child feels safe, seen and encouraged to grow.</p>
       <p style="color:var(--ink-soft); font-size:16.5px;">From the earliest years through basic education, our teachers focus on the whole child — mind, character and confidence — preparing learners for the next stage of their journey and for life beyond the classroom.</p>
       <a href="about.html#our-story" class="btn btn-sky">Discover Our Story →</a>
@@ -342,7 +355,7 @@
       <h2>What's Happening at ViviChild</h2>
       <p>Content shown here is sample placeholder content — publish real articles from the admin dashboard.</p>
     </div>
-    <div class="news-grid">
+    <div class="news-grid" id="newsGrid">
       <article class="news-card featured reveal">
         <div class="ph"><span class="ph-tag">Featured image</span></div>
         <div class="news-body">
@@ -397,7 +410,7 @@
   <div class="container contact-grid">
     <div class="contact-info reveal">
       <span class="eyebrow">Contact</span>
-      <h2>ViviChild Academy</h2>
+      <h2><span data-site-name>ViviChild Academy</span></h2>
       <div class="info-line">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.4"/></svg>
         <div><strong>Location</strong><span>Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana</span></div>
@@ -484,14 +497,14 @@
       <div class="footer-col">
         <h5>Contact</h5>
         <ul>
-          <li>Gbawe, Greater Accra, Ghana</li>
+          <li data-site-address>Gbawe, Greater Accra, Ghana</li>
           <li>+233 59 475 2241</li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <span>© 2026 ViviChild Academy. All Rights Reserved.</span>
-      <span>Gbawe, Weija-Gbawe Municipal, Greater Accra</span>
+      <span data-site-address>Gbawe, Weija-Gbawe Municipal, Greater Accra</span>
     </div>
   </div>
 </footer>

@@ -24,180 +24,143 @@
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmtDate = d => { const x = new Date(d); return isNaN(x) ? (d || '') : x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
 
+  function pathNameIsContact() { return (location.pathname.split('/').pop() || 'index.html') === 'contact.html'; }
+
   function applySettings(settings) {
     if (!settings) return;
-
     const root = document.documentElement;
     const css = settings.colors || {};
-    const themePresets = {
-      forest: { primary:'#4f3f9a', primaryDark:'#382d70', accent:'#f9c21c', background:'#f5f7fa' },
-      ocean:  { primary:'#0b7285', primaryDark:'#075968', accent:'#ffb703', background:'#f5fbfc' },
-      royal:  { primary:'#4f3f9a', primaryDark:'#382d70', accent:'#f9c21c', background:'#f7f6fb' },
-      warm:   { primary:'#b45309', primaryDark:'#78350f', accent:'#eab308', background:'#fffaf2' },
-      modern: { primary:'#1f2937', primaryDark:'#111827', accent:'#14b8a6', background:'#f7f8fa' }
-    };
-    const preset = themePresets[settings.theme] || themePresets.forest;
 
-    // CMS colours are the source of truth. Theme values are only fallbacks.
-    const values = {
-      primary: css.primary || preset.primary,
-      primaryDark: css.primaryDark || preset.primaryDark,
-      accent: css.accent || preset.accent,
-      ink: css.ink || '#263238',
-      muted: css.muted || '#68777d',
-      background: css.background || preset.background,
-      card: css.card || '#ffffff'
-    };
+    // Reset CMS classes so changes take effect immediately on navigation/cache refresh.
+    document.body.classList.remove('theme-forest','theme-ocean','theme-royal','theme-warm','theme-modern',
+      'layout-classic','layout-split','layout-editorial','layout-minimal','header-solid','header-soft','header-transparent');
+    document.body.classList.add('theme-' + (settings.theme || 'forest'));
+    document.body.classList.add('layout-' + (settings.layout || 'classic'));
+    document.body.classList.add('header-' + (settings.headerStyle || 'solid'));
 
-    // Set BOTH the CMS variables and the original site's brand variables.
-    // This is important because parts of the original stylesheet use --brand-*
-    // while newer components use --leaf/--sun/--bg.
     Object.entries({
-      '--brand-purple': values.primary,
-      '--brand-purple-dark': values.primaryDark,
-      '--brand-gold': values.accent,
-      '--brand-gold-dark': values.accent,
-      '--brand-teal': values.primary,
-      '--brand-terracotta': values.accent,
-      '--brand-sand': values.background,
-      '--sky': values.primary,
-      '--sky-dark': values.primaryDark,
-      '--leaf': values.primary,
-      '--leaf-dark': values.primaryDark,
-      '--sun': values.accent,
-      '--coral': values.accent,
-      '--ink': values.ink,
-      '--ink-soft': values.muted,
-      '--bg': values.background,
-      '--cream': values.background,
-      '--card': values.card,
-      '--white': values.card,
-      '--radius': settings.radius || '16px',
-      '--radius-lg': settings.radius || '16px'
-    }).forEach(([k,v]) => root.style.setProperty(k, v));
-
-    if (settings.fonts?.heading) root.style.setProperty('--font-heading', settings.fonts.heading);
-    if (settings.fonts?.body) root.style.setProperty('--font-body', settings.fonts.body);
-
-    document.body.dataset.cmsTheme = settings.theme || 'forest';
-    document.body.dataset.cmsLayout = settings.layout || 'classic';
-    document.body.dataset.cmsHeader = settings.headerStyle || 'solid';
+      '--leaf': css.primary, '--leaf-dark': css.primaryDark, '--sun': css.accent,
+      '--ink': css.ink, '--ink-soft': css.muted, '--cream': css.background, '--card': css.card,
+      '--font-heading': settings.fonts?.heading ? '"' + settings.fonts.heading + '", sans-serif' : null,
+      '--font-body': settings.fonts?.body ? '"' + settings.fonts.body + '", sans-serif' : null,
+      '--radius': settings.radius || '16px'
+    }).forEach(([k,v]) => { if (v) root.style.setProperty(k,v); });
 
     const name = settings.schoolName || 'ViviChild Academy';
-    const tagline = settings.tagline || '';
     const phone = settings.phone || '';
     const address = settings.address || '';
     const email = settings.email || '';
+    const motto = settings.motto || settings.tagline || '';
+    const shortDescription = settings.shortDescription || '';
+    const story = settings.story || '';
 
-    // Keep the static HTML compatible, while replacing the default school identity
-    // everywhere from the CMS. This also updates old hard-coded phone/address text.
+    // Dedicated CMS fields always win over hard-coded placeholder text.
+    document.querySelectorAll('[data-site-name]').forEach(el => el.textContent = name);
+    document.querySelectorAll('[data-site-phone]').forEach(el => { el.textContent = phone; if (el.tagName === 'A') el.href = phone ? 'tel:' + phone.replace(/\s+/g,'') : '#'; });
+    document.querySelectorAll('[data-site-email]').forEach(el => { el.textContent = email; if (el.tagName === 'A') el.href = email ? 'mailto:' + email : '#'; });
+    document.querySelectorAll('[data-site-address]').forEach(el => el.textContent = address);
+    if (email && pathNameIsContact()) {
+      const contactInfo = document.querySelector('.contact-info');
+      if (contactInfo && !contactInfo.querySelector('[data-site-email]')) {
+        const row = document.createElement('div'); row.className = 'info-line';
+        row.innerHTML = '<div><strong>Email</strong><span data-site-email></span></div>';
+        contactInfo.insertBefore(row, contactInfo.querySelector('.hero-cta-row') || null);
+      }
+    }
+    document.querySelectorAll('[data-site-motto]').forEach(el => el.textContent = motto);
+    document.querySelectorAll('[data-site-description]').forEach(el => el.textContent = shortDescription);
+    document.querySelectorAll('[data-site-story]').forEach(el => el.textContent = story);
+    document.querySelectorAll('[data-footer-text]').forEach(el => el.textContent = settings.footerText || shortDescription || motto);
+
+    document.querySelectorAll('[data-site-logo]').forEach(el => {
+      if (settings.logoUrl) el.innerHTML = '<img src="' + esc(settings.logoUrl) + '" alt="' + esc(name) + ' logo" style="max-height:52px;max-width:90px;object-fit:contain;margin-right:8px;vertical-align:middle;"><span data-site-name>' + esc(name) + '</span>';
+      else el.innerHTML = '<span data-site-name>' + esc(name) + '</span>';
+    });
+
+    // Update remaining legacy hard-coded identity/contact text, while excluding scripts/styles.
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(n => {
-      if (n.parentElement && ['SCRIPT','STYLE'].includes(n.parentElement.tagName)) return;
+      if (!n.parentElement || ['SCRIPT','STYLE'].includes(n.parentElement.tagName)) return;
+      if (n.parentElement.closest('[data-site-name],[data-site-phone],[data-site-email],[data-site-address],[data-site-motto],[data-site-description],[data-site-story],[data-footer-text],[data-cms-bound]')) return;
       n.nodeValue = n.nodeValue
         .replace(/ViviChild Academy/g, name)
         .replace(/\+233\s*59\s*475\s*2241/g, phone || '+233 59 475 2241')
-        .replace(/Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana/g, address || 'Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana');
+        .replace(/Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana/g, address || 'Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana')
+        .replace(/Gbawe, Greater Accra, Ghana/g, address || 'Gbawe, Greater Accra, Ghana');
     });
 
-    if (phone) {
-      document.querySelectorAll('a[href^="tel:"]').forEach(a => {
-        a.href = 'tel:' + phone.replace(/[^\d+]/g, '');
-      });
-    }
-
-    document.querySelectorAll('[data-site-name]').forEach(el => el.textContent = name);
-    document.querySelectorAll('[data-site-tagline]').forEach(el => el.textContent = tagline);
-    document.querySelectorAll('[data-site-phone]').forEach(el => {
-      el.textContent = phone;
-      if (el.tagName === 'A') el.href = phone ? 'tel:' + phone.replace(/[^\d+]/g, '') : '#';
-    });
-    document.querySelectorAll('[data-site-email]').forEach(el => {
-      el.textContent = email;
-      if (el.tagName === 'A') el.href = email ? 'mailto:' + email : '#';
-    });
-    document.querySelectorAll('[data-site-address]').forEach(el => el.textContent = address);
-    document.querySelectorAll('[data-footer-text]').forEach(el => el.textContent = settings.footerText || '');
-
-    document.querySelectorAll('[data-site-logo]').forEach(el => {
-      if (settings.logoUrl) {
-        el.innerHTML = '<img src="' + esc(settings.logoUrl) + '" alt="' + esc(name) + ' logo" style="max-height:52px;max-width:210px;object-fit:contain;">';
-      }
-    });
-
-    if (settings.faviconUrl) {
-      let f = document.querySelector('link[rel="icon"]');
-      if (!f) {
-        f = document.createElement('link');
-        f.rel = 'icon';
-        document.head.appendChild(f);
-      }
-      f.href = settings.faviconUrl;
-    }
-
-    document.title = document.title.replace(/ViviChild Academy/g, name);
-    document.querySelectorAll('meta[name="description"],meta[property="og:site_name"],meta[property="og:title"],meta[property="og:description"],meta[name="twitter:title"],meta[name="twitter:description"]').forEach(m => {
-      if (m.name === 'description' && settings.seoDescription) m.content = settings.seoDescription;
-      if (m.getAttribute('property') === 'og:site_name') m.content = name;
-      if (m.getAttribute('property') === 'og:title') m.content = m.content.replace(/ViviChild Academy/g, name);
-      if (m.getAttribute('name') === 'twitter:title') m.content = m.content.replace(/ViviChild Academy/g, name);
-    });
-
+    if (phone) document.querySelectorAll('a[href^="tel:"]').forEach(a => a.href = 'tel:' + phone.replace(/\s+/g,''));
     if (settings.social?.facebook) document.querySelectorAll('[data-social="facebook"]').forEach(a => a.href = settings.social.facebook);
     if (settings.social?.instagram) document.querySelectorAll('[data-social="instagram"]').forEach(a => a.href = settings.social.instagram);
     if (settings.social?.tiktok) document.querySelectorAll('[data-social="tiktok"]').forEach(a => a.href = settings.social.tiktok);
     if (settings.social?.whatsapp) document.querySelectorAll('[data-social="whatsapp"]').forEach(a => a.href = settings.social.whatsapp);
 
-    const content = settings.content || {};
-    const map = {
-      homeHeroTitle: '.hero .hero-copy h1',
-      homeHeroText: '.hero .hero-copy p.lead, .hero .hero-copy p',
-      homeWelcomeTitle: '#home .intro-grid h2, #home h2',
-      homeWhyTitle: '#home .section-tint h2, #why h2',
-      homeAcademicsTitle: '#home #academics h2, #academics h2',
-      homeAdmissionsTitle: '#home .admissions-side h2, #home .admissions h2, .admissions h2',
-      homeStudentLifeTitle: '#home #student-life h2, #student-life h2',
-      homeGalleryTitle: '#home #gallery h2, #gallery h2',
-      homeNewsTitle: '#home #news h2, #news h2',
-      homeCtaTitle: '#home #final-cta h2, #final-cta h2',
-      aboutWelcomeTitle: 'main h1, main .intro-grid h2, #about h2',
-      aboutStoryTitle: '#our-story h2, #story h2',
-      academicsTitle: 'main h1, #academics h1, #academics h2',
-      admissionsTitle: 'main h1, #admissions h1, #admissions > .container h2',
-      studentLifeTitle: 'main h1, #student-life h1, #student-life h2',
-      galleryTitle: 'main h1, #gallery h1, #gallery h2',
-      newsTitle: 'main h1, #news h1, #news h2',
-      contactTitle: 'main h1, #contact h1, #contact h2'
-    };
-
-    Object.entries(content).forEach(([key, value]) => {
-      if (!value) return;
-      const marked = document.querySelector('[data-cms-key="' + key + '"]');
-      const selector = map[key];
-      const el = marked || (selector ? document.querySelector(selector) : null);
-      if (el) el.textContent = value;
+    if (settings.faviconUrl) {
+      let f = document.querySelector('link[rel="icon"]');
+      if (!f) { f = document.createElement('link'); f.rel = 'icon'; document.head.appendChild(f); }
+      f.href = settings.faviconUrl;
+    }
+    document.title = document.title.replace(/ViviChild Academy/g, name);
+    document.querySelectorAll('meta[name="description"],meta[property="og:site_name"]').forEach(m => {
+      if (m.name === 'description' && settings.seoDescription) m.content = settings.seoDescription;
+      if (m.getAttribute('property') === 'og:site_name') m.content = name;
     });
 
-    if (settings.heroImageUrl) {
-      document.querySelectorAll('.hero').forEach(el => {
-        el.style.setProperty('--cms-hero-image', "url('" + settings.heroImageUrl.replace(/'/g, "\\'") + "')");
+    const content = settings.content || {};
+    const path = location.pathname.split('/').pop() || 'index.html';
+    const setText = (selector, value, allowHtml=false) => {
+      if (!value) return;
+      document.querySelectorAll(selector).forEach(el => {
+        if (el.matches('[data-cms-bound]')) return;
+        if (allowHtml) el.innerHTML = value;
+        else el.textContent = value;
+        el.setAttribute('data-cms-bound','1');
+      });
+    };
+
+    // Main content fields. These selectors intentionally target the real page structure,
+    // not only IDs that may differ between pages.
+    const maps = {
+      'index.html': {
+        homeHeroTitle: ['.hero .hero-copy h1'], homeHeroText: ['.hero .hero-copy p.lead'],
+        homeWelcomeTitle: ['section#about h2'], homeWelcomeText: ['section#about .intro-grid > div:last-child p'],
+        homeWhyTitle: ['.section-tint .section-head h2'], homeWhyText: ['.section-tint .section-head p'],
+        homeNewsTitle: ['section#news .section-head h2'], homeCtaTitle: ['#final-cta h2'], homeCtaText: ['#final-cta p']
+      },
+      'about.html': {
+        aboutWelcomeTitle: ['main .intro-grid h2'], aboutWelcomeText: ['main .intro-grid > div:last-child p'],
+        aboutStoryTitle: ['#our-story h2'], aboutStoryText: ['#our-story .story-copy p', '#our-story p']
+      },
+      'academics.html': { academicsTitle: ['main h1','main h2'], academicsText: ['main .section-head p'] },
+      'admissions.html': { admissionsTitle: ['main h1','main h2'], admissionsText: ['main .section-head p'] },
+      'student-life.html': { studentLifeTitle: ['main h1','main h2'], studentLifeText: ['main .section-head p'] },
+      'gallery.html': { galleryTitle: ['main h1','main h2'], galleryText: ['main .section-head p'] },
+      'news.html': { newsTitle: ['main h1','main h2'], newsText: ['main .section-head p'] },
+      'contact.html': { contactTitle: ['main h1','main h2'], contactText: ['main .section-head p'] }
+    };
+    const pageMap = maps[path] || {};
+    Object.entries(pageMap).forEach(([key, selectors]) => {
+      if (!content[key]) return;
+      const selector = selectors.join(',');
+      const el = document.querySelector(selector);
+      if (el) setText(selector, content[key]);
+    });
+
+    if (story) {
+      document.querySelectorAll('#our-story .story-copy p, #our-story .story-text, [data-site-story]').forEach(el => {
+        if (!el.matches('[data-site-story]')) el.textContent = story;
       });
     }
-
-    if (settings.footerText) {
-      document.querySelectorAll('footer p,[data-footer-text]').forEach(el => el.textContent = settings.footerText);
-    }
+    if (settings.heroImageUrl) document.querySelectorAll('.hero').forEach(el => el.style.setProperty('--cms-hero-image', "url('" + settings.heroImageUrl.replace(/'/g,"\\'") + "')"));
   }
 
   async function loadSettings(){
     const {data,error}=await client.from('site_settings').select('settings').eq('id',1).maybeSingle();
     if(error)throw error;
     window.VC.settings=data?.settings||{};
-    if (!data) console.warn('No site_settings row with id=1 was found. Run supabase_schema.sql or create the row in Supabase.');
     applySettings(window.VC.settings);
-    document.documentElement.dataset.cmsLoaded = 'true';
   }
 
   async function submitEnquiry(form){
@@ -236,10 +199,10 @@
     ]);
     if(aErr)throw aErr;
     window.VC.articles=articles||[];
-    const grid=document.getElementById('newsGrid');
+    const grid=document.getElementById('newsGrid') || document.querySelector('#news .news-grid');
     if(grid){
       if(window.VC.articles.length){
-        grid.innerHTML=window.VC.articles.map((a,i)=>'<article class="news-card '+(i===0?'featured':'')+'">'+
+        grid.innerHTML=window.VC.articles.slice(0,3).map((a,i)=>'<article class="news-card '+(i===0?'featured':'')+'">'+
           (a.image_url?'<div class="ph"><img src="'+esc(a.image_url)+'" alt="'+esc(a.alt||'Featured image')+'" loading="lazy"></div>':'<div class="ph"><span class="ph-tag">Featured image</span></div>')+
           '<div class="news-body"><span class="news-cat">'+esc(a.category||'School News')+'</span><a href="news-article.html?slug='+encodeURIComponent(a.slug)+'" style="text-decoration:none;color:inherit"><h3>'+esc(a.title)+'</h3></a><span class="news-date">'+fmtDate(a.date)+'</span><p class="news-excerpt">'+esc(a.excerpt||'')+'</p><a href="news-article.html?slug='+encodeURIComponent(a.slug)+'" class="news-read">Read More →</a></div></article>').join('');
       }
@@ -281,6 +244,13 @@
     render('[data-gallery]',gallery);render('[data-student-life]',student);render('[data-student-life-gallery]',student);render('[data-home-gallery]',gallery);render('[data-home-student-life]',student);
   }
 
+  function hideSiteLoader(){
+    const loader=document.getElementById('siteLoader');
+    if(!loader)return;
+    loader.classList.add('is-hidden');
+    window.setTimeout(()=>loader.remove(),500);
+  }
+
   const domReady=document.readyState==='loading'?new Promise(r=>document.addEventListener('DOMContentLoaded',r,{once:true})):Promise.resolve();
   window.VC.ready=domReady.then(async()=>{
     try{await loadSettings();}catch(e){console.warn('Supabase site settings unavailable:',e.message);}
@@ -288,5 +258,8 @@
     try{await loadArticlesAndReviews();}catch(e){console.warn('Supabase articles/reviews unavailable:',e.message);}
     wireForms();
     return window.VC;
+  }).finally(()=>{
+    window.setTimeout(hideSiteLoader,150);
   });
+  window.setTimeout(hideSiteLoader,5000);
 })();
