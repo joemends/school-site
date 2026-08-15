@@ -2,8 +2,8 @@
 (function () {
   const rawCfg = window.SUPABASE_CONFIG || window.VIVICHILD_SUPABASE || {};
   const normalizedUrl = String(rawCfg.url || '').trim()
-    .replace(/\\/+$/, '')
-    .replace(/\\/(rest\\/v1|auth\\/v1|storage\\/v1)(\\/.*)?$/i, '');
+    .replace(/\/+$/, '')
+    .replace(/\/(rest\/v1|auth\/v1|storage\/v1)(\/.*)?$/i, '');
   const cfg = { url: normalizedUrl, anonKey: String(rawCfg.anonKey || '').trim() };
   const valid = cfg.url && cfg.anonKey &&
     !String(cfg.url).includes('YOUR_') && !String(cfg.anonKey).includes('YOUR_');
@@ -26,47 +26,153 @@
 
   function applySettings(settings) {
     if (!settings) return;
+
     const root = document.documentElement;
     const css = settings.colors || {};
+    const themePresets = {
+      forest: { primary:'#4f3f9a', primaryDark:'#382d70', accent:'#f9c21c', background:'#f5f7fa' },
+      ocean:  { primary:'#0b7285', primaryDark:'#075968', accent:'#ffb703', background:'#f5fbfc' },
+      royal:  { primary:'#4f3f9a', primaryDark:'#382d70', accent:'#f9c21c', background:'#f7f6fb' },
+      warm:   { primary:'#b45309', primaryDark:'#78350f', accent:'#eab308', background:'#fffaf2' },
+      modern: { primary:'#1f2937', primaryDark:'#111827', accent:'#14b8a6', background:'#f7f8fa' }
+    };
+    const preset = themePresets[settings.theme] || themePresets.forest;
+
+    // CMS colours are the source of truth. Theme values are only fallbacks.
+    const values = {
+      primary: css.primary || preset.primary,
+      primaryDark: css.primaryDark || preset.primaryDark,
+      accent: css.accent || preset.accent,
+      ink: css.ink || '#263238',
+      muted: css.muted || '#68777d',
+      background: css.background || preset.background,
+      card: css.card || '#ffffff'
+    };
+
     Object.entries({
-      '--leaf': css.primary, '--leaf-dark': css.primaryDark, '--sun': css.accent,
-      '--ink': css.ink, '--ink-soft': css.muted, '--cream': css.background, '--card': css.card
-    }).forEach(([k,v]) => { if (v) root.style.setProperty(k,v); });
+      '--leaf': values.primary,
+      '--leaf-dark': values.primaryDark,
+      '--sun': values.accent,
+      '--ink': values.ink,
+      '--ink-soft': values.muted,
+      '--bg': values.background,
+      '--cream': values.background,
+      '--card': values.card,
+      '--white': values.card,
+      '--radius': settings.radius || '16px'
+    }).forEach(([k,v]) => root.style.setProperty(k, v));
+
     if (settings.fonts?.heading) root.style.setProperty('--font-heading', settings.fonts.heading);
     if (settings.fonts?.body) root.style.setProperty('--font-body', settings.fonts.body);
-    document.body.classList.add('theme-' + (settings.theme || 'forest'));
-    document.body.classList.add('layout-' + (settings.layout || 'classic'));
-    document.body.classList.add('header-' + (settings.headerStyle || 'solid'));
-    root.style.setProperty('--radius', settings.radius || '16px');
 
-    const name=settings.schoolName||'ViviChild Academy', phone=settings.phone||'', address=settings.address||'', email=settings.email||'';
-    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT), nodes=[];
-    while(walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(n=>{
-      if(n.parentElement&&['SCRIPT','STYLE'].includes(n.parentElement.tagName))return;
-      n.nodeValue=n.nodeValue.replace(/ViviChild Academy/g,name)
-        .replace(/\+233\s*59\s*475\s*2241/g,phone||'+233 59 475 2241')
-        .replace(/Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana/g,address||'Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana');
+    document.body.dataset.cmsTheme = settings.theme || 'forest';
+    document.body.dataset.cmsLayout = settings.layout || 'classic';
+    document.body.dataset.cmsHeader = settings.headerStyle || 'solid';
+
+    const name = settings.schoolName || 'ViviChild Academy';
+    const tagline = settings.tagline || '';
+    const phone = settings.phone || '';
+    const address = settings.address || '';
+    const email = settings.email || '';
+
+    // Keep the static HTML compatible, while replacing the default school identity
+    // everywhere from the CMS. This also updates old hard-coded phone/address text.
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => {
+      if (n.parentElement && ['SCRIPT','STYLE'].includes(n.parentElement.tagName)) return;
+      n.nodeValue = n.nodeValue
+        .replace(/ViviChild Academy/g, name)
+        .replace(/\+233\s*59\s*475\s*2241/g, phone || '+233 59 475 2241')
+        .replace(/Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana/g, address || 'Gbawe, Weija-Gbawe Municipal, Greater Accra, Ghana');
     });
-    if(phone) document.querySelectorAll('a[href^="tel:"]').forEach(a=>a.href='tel:'+phone.replace(/\s+/g,''));
-    document.querySelectorAll('[data-site-name]').forEach(el=>el.textContent=name);
-    document.querySelectorAll('[data-site-phone]').forEach(el=>{el.textContent=phone;if(el.tagName==='A')el.href=phone?'tel:'+phone.replace(/\s+/g,''):'#';});
-    document.querySelectorAll('[data-site-email]').forEach(el=>{el.textContent=email;if(el.tagName==='A')el.href=email?'mailto:'+email:'#';});
-    document.querySelectorAll('[data-site-address]').forEach(el=>el.textContent=address);
-    document.querySelectorAll('[data-site-logo]').forEach(el=>{if(settings.logoUrl)el.innerHTML='<img src="'+esc(settings.logoUrl)+'" alt="'+esc(name)+' logo" style="max-height:52px;max-width:210px;object-fit:contain;">';});
-    if(settings.faviconUrl){let f=document.querySelector('link[rel="icon"]');if(!f){f=document.createElement('link');f.rel='icon';document.head.appendChild(f);}f.href=settings.faviconUrl;}
-    document.title=document.title.replace(/ViviChild Academy/g,name);
-    document.querySelectorAll('meta[name="description"],meta[property="og:site_name"]').forEach(m=>{if(m.name==='description'&&settings.seoDescription)m.content=settings.seoDescription;if(m.getAttribute('property')==='og:site_name')m.content=name;});
-    if(settings.social?.facebook)document.querySelectorAll('[data-social="facebook"]').forEach(a=>a.href=settings.social.facebook);
-    if(settings.social?.instagram)document.querySelectorAll('[data-social="instagram"]').forEach(a=>a.href=settings.social.instagram);
-    if(settings.social?.tiktok)document.querySelectorAll('[data-social="tiktok"]').forEach(a=>a.href=settings.social.tiktok);
-    if(settings.social?.whatsapp)document.querySelectorAll('[data-social="whatsapp"]').forEach(a=>a.href=settings.social.whatsapp);
 
-    const content=settings.content||{};
-    const map={homeHeroTitle:'.hero .hero-copy h1',homeHeroText:'.hero .hero-copy p',homeWelcomeTitle:'#welcome h2',homeWhyTitle:'#why h2',homeAcademicsTitle:'#academics h2',homeAdmissionsTitle:'.admissions h2',homeStudentLifeTitle:'#student-life h2',homeGalleryTitle:'#gallery h2',homeNewsTitle:'#news h2',homeCtaTitle:'#final-cta h2',aboutWelcomeTitle:'#about h2',aboutStoryTitle:'#story h2',academicsTitle:'#academics h1, #academics h2',admissionsTitle:'#admissions h2',studentLifeTitle:'#student-life h2',galleryTitle:'#gallery h1, #gallery h2',newsTitle:'#news h1, #news h2',contactTitle:'#contact h2'};
-    Object.entries(map).forEach(([key,selector])=>{if(!content[key])return;const el=document.querySelector(selector);if(el)el.textContent=content[key];});
-    if(settings.heroImageUrl)document.querySelectorAll('.hero').forEach(el=>el.style.setProperty('--cms-hero-image',"url('"+settings.heroImageUrl.replace(/'/g,"\\'")+"')"));
-    if(settings.footerText)document.querySelectorAll('footer p,[data-footer-text]').forEach(el=>el.textContent=settings.footerText);
+    if (phone) {
+      document.querySelectorAll('a[href^="tel:"]').forEach(a => {
+        a.href = 'tel:' + phone.replace(/[^\d+]/g, '');
+      });
+    }
+
+    document.querySelectorAll('[data-site-name]').forEach(el => el.textContent = name);
+    document.querySelectorAll('[data-site-tagline]').forEach(el => el.textContent = tagline);
+    document.querySelectorAll('[data-site-phone]').forEach(el => {
+      el.textContent = phone;
+      if (el.tagName === 'A') el.href = phone ? 'tel:' + phone.replace(/[^\d+]/g, '') : '#';
+    });
+    document.querySelectorAll('[data-site-email]').forEach(el => {
+      el.textContent = email;
+      if (el.tagName === 'A') el.href = email ? 'mailto:' + email : '#';
+    });
+    document.querySelectorAll('[data-site-address]').forEach(el => el.textContent = address);
+    document.querySelectorAll('[data-footer-text]').forEach(el => el.textContent = settings.footerText || '');
+
+    document.querySelectorAll('[data-site-logo]').forEach(el => {
+      if (settings.logoUrl) {
+        el.innerHTML = '<img src="' + esc(settings.logoUrl) + '" alt="' + esc(name) + ' logo" style="max-height:52px;max-width:210px;object-fit:contain;">';
+      }
+    });
+
+    if (settings.faviconUrl) {
+      let f = document.querySelector('link[rel="icon"]');
+      if (!f) {
+        f = document.createElement('link');
+        f.rel = 'icon';
+        document.head.appendChild(f);
+      }
+      f.href = settings.faviconUrl;
+    }
+
+    document.title = document.title.replace(/ViviChild Academy/g, name);
+    document.querySelectorAll('meta[name="description"],meta[property="og:site_name"],meta[property="og:title"],meta[property="og:description"],meta[name="twitter:title"],meta[name="twitter:description"]').forEach(m => {
+      if (m.name === 'description' && settings.seoDescription) m.content = settings.seoDescription;
+      if (m.getAttribute('property') === 'og:site_name') m.content = name;
+      if (m.getAttribute('property') === 'og:title') m.content = m.content.replace(/ViviChild Academy/g, name);
+      if (m.getAttribute('name') === 'twitter:title') m.content = m.content.replace(/ViviChild Academy/g, name);
+    });
+
+    if (settings.social?.facebook) document.querySelectorAll('[data-social="facebook"]').forEach(a => a.href = settings.social.facebook);
+    if (settings.social?.instagram) document.querySelectorAll('[data-social="instagram"]').forEach(a => a.href = settings.social.instagram);
+    if (settings.social?.tiktok) document.querySelectorAll('[data-social="tiktok"]').forEach(a => a.href = settings.social.tiktok);
+    if (settings.social?.whatsapp) document.querySelectorAll('[data-social="whatsapp"]').forEach(a => a.href = settings.social.whatsapp);
+
+    const content = settings.content || {};
+    const map = {
+      homeHeroTitle: '.hero .hero-copy h1',
+      homeHeroText: '.hero .hero-copy p',
+      homeWelcomeTitle: '#home .welcome h2, #home h2',
+      homeWhyTitle: '#home #why h2, #why h2',
+      homeAcademicsTitle: '#home #academics h2, #academics h2',
+      homeAdmissionsTitle: '#home .admissions h2, .admissions h2',
+      homeStudentLifeTitle: '#home #student-life h2, #student-life h2',
+      homeGalleryTitle: '#home #gallery h2, #gallery h2',
+      homeNewsTitle: '#home #news h2, #news h2',
+      homeCtaTitle: '#home #final-cta h2, #final-cta h2',
+      aboutWelcomeTitle: '#about > .container h2, #about h2',
+      aboutStoryTitle: '#our-story h2, #story h2',
+      academicsTitle: '#academics h1, #academics h2',
+      admissionsTitle: '#admissions h1, #admissions > .container h2, #admissions h2',
+      studentLifeTitle: '#student-life h1, #student-life h2',
+      galleryTitle: '#gallery h1, #gallery h2',
+      newsTitle: '#news h1, #news h2',
+      contactTitle: '#contact h1, #contact h2'
+    };
+
+    Object.entries(map).forEach(([key, selector]) => {
+      if (!content[key]) return;
+      const el = document.querySelector(selector);
+      if (el) el.textContent = content[key];
+    });
+
+    if (settings.heroImageUrl) {
+      document.querySelectorAll('.hero').forEach(el => {
+        el.style.setProperty('--cms-hero-image', "url('" + settings.heroImageUrl.replace(/'/g, "\\'") + "')");
+      });
+    }
+
+    if (settings.footerText) {
+      document.querySelectorAll('footer p,[data-footer-text]').forEach(el => el.textContent = settings.footerText);
+    }
   }
 
   async function loadSettings(){
